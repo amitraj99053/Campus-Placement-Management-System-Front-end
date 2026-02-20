@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { Briefcase, Building, MapPin, Calendar, Clock } from 'lucide-react';
+import { Briefcase, Building, MapPin, Calendar, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const MyApplications = () => {
@@ -22,59 +22,107 @@ const MyApplications = () => {
         fetchApplications();
     }, []);
 
-    const getStatusColor = (status) => {
+    const getStatusConfig = (status) => {
         switch (status) {
-            case 'Applied': return 'bg-blue-100 text-blue-800';
-            case 'Shortlisted': return 'bg-yellow-100 text-yellow-800';
-            case 'Interview Scheduled': return 'bg-purple-100 text-purple-800';
-            case 'Selected': return 'bg-green-100 text-green-800';
-            case 'Rejected': return 'bg-red-100 text-red-800';
-            default: return 'bg-gray-100 text-gray-800';
+            case 'Applied': return { color: 'text-blue-600', bg: 'bg-blue-50', icon: Clock, label: 'Under Review' };
+            case 'Shortlisted': return { color: 'text-amber-600', bg: 'bg-amber-50', icon: CheckCircle, label: 'Shortlisted' };
+            case 'Interview Scheduled': return { color: 'text-purple-600', bg: 'bg-purple-50', icon: Calendar, label: 'Interview' };
+            case 'Selected': return { color: 'text-green-600', bg: 'bg-green-50', icon: Briefcase, label: 'Hired' };
+            case 'Rejected': return { color: 'text-red-600', bg: 'bg-red-50', icon: XCircle, label: 'Not Selected' };
+            default: return { color: 'text-gray-600', bg: 'bg-gray-50', icon: AlertCircle, label: status };
         }
     };
 
-    if (loading) return <div>Loading applications...</div>;
+    if (loading) return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></div>;
 
     return (
-        <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-slate-900">My Applications</h2>
+        <div className="space-y-8">
+            <div>
+                <h2 className="text-3xl font-bold text-slate-900">My Applications</h2>
+                <p className="text-slate-500 mt-1">Track the progress of your job applications.</p>
+            </div>
 
             {applications.length === 0 ? (
-                <div className="text-center py-10 bg-white rounded-xl shadow-sm border border-gray-100">
-                    <Briefcase className="mx-auto h-12 w-12 text-gray-400" />
-                    <p className="mt-4 text-gray-500">You haven't applied to any jobs yet.</p>
-                    <Link to="/jobs" className="mt-4 inline-block bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">
+                <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-gray-300">
+                    <div className="bg-indigo-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Briefcase className="h-8 w-8 text-indigo-600" />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900">No applications yet</h3>
+                    <p className="text-slate-500 mt-2 max-w-md mx-auto">Start your career journey by exploring open positions and applying to your dream companies.</p>
+                    <Link to="/jobs" className="mt-6 inline-flex items-center px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
                         Browse Jobs
                     </Link>
                 </div>
             ) : (
                 <div className="grid gap-6">
-                    {applications.map((app) => (
-                        <div key={app._id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between md:items-center gap-4">
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                    <h3 className="text-xl font-semibold text-slate-900">{app.job?.title || 'Unknown Job'}</h3>
-                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(app.status)}`}>
-                                        {app.status}
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-4 text-sm text-gray-500">
-                                    <span className="flex items-center gap-1"><Building size={16} /> {app.job?.company || 'Unknown Company'}</span>
-                                    <span className="flex items-center gap-1"><MapPin size={16} /> {app.job?.location || 'N/A'}</span>
-                                </div>
-                                <div className="flex items-center gap-4 text-sm text-gray-400">
-                                    <span className="flex items-center gap-1"><Calendar size={14} /> Applied: {new Date(app.createdAt).toLocaleDateString()}</span>
-                                </div>
-                            </div>
+                    {applications.map((app) => {
+                        const statusConfig = getStatusConfig(app.status);
+                        const StatusIcon = statusConfig.icon;
 
-                            <div>
-                                {/* Future: Add 'Withdraw' button if status is just 'Applied' */}
-                                <Link to={`/jobs/${app.job?._id}`} className="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
-                                    View Job
-                                </Link>
+                        return (
+                            <div key={app._id} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition group">
+                                <div className="flex flex-col md:flex-row justify-between gap-6">
+                                    <div className="flex gap-4">
+                                        <div className="w-16 h-16 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 font-bold text-2xl border border-gray-200">
+                                            {app.job?.company?.charAt(0) || 'C'}
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-bold text-slate-900">{app.job?.title || 'Unknown Job'}</h3>
+                                            <div className="flex items-center text-slate-500 font-medium mt-1">
+                                                <Building size={16} className="mr-2" />
+                                                {app.job?.company || 'Unknown Company'}
+                                            </div>
+                                            <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+                                                <span className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-md">
+                                                    <MapPin size={14} /> {app.job?.location || 'N/A'}
+                                                </span>
+                                                <span className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-md">
+                                                    <Calendar size={14} /> Applied: {new Date(app.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col items-end justify-between">
+                                        <div className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm ${statusConfig.bg} ${statusConfig.color}`}>
+                                            <StatusIcon size={18} />
+                                            {statusConfig.label}
+                                        </div>
+
+                                        <Link
+                                            to={`/jobs/${app.job?._id}`}
+                                            className="mt-4 text-indigo-600 hover:text-indigo-800 font-semibold text-sm flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            View Job Details <Clock size={14} />
+                                        </Link>
+                                    </div>
+                                </div>
+
+                                {/* Simple Progress Bar */}
+                                <div className="mt-6 relative pt-4">
+                                    <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+                                        <div className={`h-full rounded-full ${statusConfig.bg.replace('bg-', 'bg-').replace('50', '500')}`}
+                                            style={{
+                                                width: app.status === 'Applied' ? '25%' :
+                                                    app.status === 'Shortlisted' ? '50%' :
+                                                        app.status === 'Interview Scheduled' ? '75%' :
+                                                            app.status === 'Selected' ? '100%' : '100%',
+                                                backgroundColor: app.status === 'Rejected' ? '#ef4444' : undefined
+                                            }}
+                                        ></div>
+                                    </div>
+                                    <div className="flex justify-between text-xs text-gray-400 mt-2 font-medium uppercase tracking-wide">
+                                        <span className={app.status !== 'Rejected' ? 'text-indigo-600' : ''}>Applied</span>
+                                        <span className={['Shortlisted', 'Interview Scheduled', 'Selected'].includes(app.status) ? 'text-indigo-600' : ''}>Shortlisted</span>
+                                        <span className={['Interview Scheduled', 'Selected'].includes(app.status) ? 'text-indigo-600' : ''}>Interview</span>
+                                        <span className={app.status === 'Selected' ? 'text-green-600' : app.status === 'Rejected' ? 'text-red-600' : ''}>
+                                            {app.status === 'Rejected' ? 'Rejected' : 'Hired'}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </div>

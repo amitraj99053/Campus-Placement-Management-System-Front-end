@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import Modal from '../../components/Modal';
 import { Plus, Users, Edit, Trash } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 
 const RecruiterDashboard = () => {
+    const { user } = useAuth();
     const [jobs, setJobs] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newJob, setNewJob] = useState({
         title: '', company: '', description: '', requirements: '', location: '',
         type: 'Full-time', salaryRange: '', deadline: ''
     });
+    const [editingJob, setEditingJob] = useState(null);
 
     useEffect(() => {
         fetchMyJobs();
@@ -30,26 +33,79 @@ const RecruiterDashboard = () => {
     const handleCreateJob = async (e) => {
         e.preventDefault();
         try {
-            await api.post('/jobs', newJob);
-            toast.success('Job posted successfully');
+            if (editingJob) {
+                await api.put(`/jobs/${editingJob._id}`, newJob);
+                toast.success('Job updated successfully');
+            } else {
+                await api.post('/jobs', newJob);
+                toast.success('Job posted successfully');
+            }
             setIsModalOpen(false);
             fetchMyJobs();
-            setNewJob({
-                title: '', company: '', description: '', requirements: '', location: '',
-                type: 'Full-time', salaryRange: '', deadline: ''
-            });
+            resetForm();
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to post job');
+            toast.error(error.response?.data?.message || 'Operation failed');
+        }
+    };
+
+    const resetForm = () => {
+        setNewJob({
+            title: '', company: '', description: '', requirements: '', location: '',
+            type: 'Full-time', salaryRange: '', deadline: ''
+        });
+        setEditingJob(null);
+    };
+
+    const handleEditClick = (job) => {
+        setEditingJob(job);
+        setNewJob({
+            title: job.title,
+            company: job.company,
+            description: job.description,
+            requirements: job.requirements,
+            location: job.location,
+            type: job.type,
+            salaryRange: job.salaryRange,
+            deadline: job.deadline.split('T')[0] // Format for date input
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleDeleteJob = async (jobId) => {
+        if (window.confirm('Are you sure you want to delete this job posting?')) {
+            try {
+                await api.delete(`/jobs/${jobId}`);
+                toast.success('Job deleted successfully');
+                fetchMyJobs();
+            } catch (error) {
+                toast.error('Failed to delete job');
+            }
         }
     };
 
     return (
         <div className="space-y-6">
+            {!user?.isVerified && (
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                    <div className="flex">
+                        <div className="ml-3">
+                            <p className="text-sm text-yellow-700">
+                                Your account is pending verification by the Admin/TPO. You cannot post jobs until verified.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-slate-900">Manage Jobs</h2>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition"
+                    disabled={!user?.isVerified}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-md transition ${user?.isVerified
+                        ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        }`}
                 >
                     <Plus size={20} />
                     Post New Job
@@ -57,72 +113,103 @@ const RecruiterDashboard = () => {
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicants</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deadline</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {jobs.map((job) => (
-                            <tr key={job._id}>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm font-medium text-gray-900">{job.title}</div>
-                                    <div className="text-sm text-gray-500">{job.company}</div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        {job.type}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <Link to={`/recruiter/jobs/${job._id}/applications`} className="flex items-center gap-1 hover:text-indigo-600">
-                                        <Users size={16} />
-                                        {job.applicants?.length || 0}
-                                    </Link>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {new Date(job.deadline).toLocaleDateString()}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button className="text-indigo-600 hover:text-indigo-900 mr-4"><Edit size={18} /></button>
-                                    <button className="text-red-600 hover:text-red-900"><Trash size={18} /></button>
-                                </td>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicants</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deadline</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {jobs.map((job) => (
+                                <tr key={job._id}>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="text-sm font-medium text-gray-900">{job.title}</div>
+                                        <div className="text-sm text-gray-500">{job.company}</div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            {job.type}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <Link to={`/recruiter/jobs/${job._id}/applications`} className="flex items-center gap-1 hover:text-indigo-600">
+                                            <Users size={16} />
+                                            {job.applicants?.length || 0}
+                                        </Link>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {new Date(job.deadline).toLocaleDateString()}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button
+                                            onClick={() => handleEditClick(job)}
+                                            className="text-indigo-600 hover:text-indigo-900 mr-4"
+                                        >
+                                            <Edit size={18} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteJob(job._id)}
+                                            className="text-red-600 hover:text-red-900"
+                                        >
+                                            <Trash size={18} />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Post New Job">
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    resetForm();
+                }}
+                title={editingJob ? "Edit Job" : "Post New Job"}
+            >
                 <form onSubmit={handleCreateJob} className="space-y-4 max-h-[70vh] overflow-y-auto">
                     <input type="text" placeholder="Job Title" className="w-full p-2 border rounded" required
+                        value={newJob.title}
                         onChange={e => setNewJob({ ...newJob, title: e.target.value })} />
                     <input type="text" placeholder="Company Name" className="w-full p-2 border rounded" required
+                        value={newJob.company}
                         onChange={e => setNewJob({ ...newJob, company: e.target.value })} />
                     <textarea placeholder="Description" className="w-full p-2 border rounded" required
+                        value={newJob.description}
                         onChange={e => setNewJob({ ...newJob, description: e.target.value })} />
                     <textarea placeholder="Requirements (comma separated)" className="w-full p-2 border rounded"
+                        value={newJob.requirements}
                         onChange={e => setNewJob({ ...newJob, requirements: e.target.value })} />
                     <div className="grid grid-cols-2 gap-4">
                         <input type="text" placeholder="Location" className="w-full p-2 border rounded" required
+                            value={newJob.location}
                             onChange={e => setNewJob({ ...newJob, location: e.target.value })} />
-                        <select className="w-full p-2 border rounded"
-                            onChange={e => setNewJob({ ...newJob, type: e.target.value })}>
+                        <select
+                            className="w-full p-2 border rounded"
+                            value={newJob.type}
+                            onChange={e => setNewJob({ ...newJob, type: e.target.value })}
+                        >
                             <option value="Full-time">Full-time</option>
                             <option value="Internship">Internship</option>
                             <option value="Part-time">Part-time</option>
                         </select>
                     </div>
                     <input type="text" placeholder="Salary Range" className="w-full p-2 border rounded"
+                        value={newJob.salaryRange}
                         onChange={e => setNewJob({ ...newJob, salaryRange: e.target.value })} />
                     <input type="date" className="w-full p-2 border rounded" required
+                        value={newJob.deadline}
                         onChange={e => setNewJob({ ...newJob, deadline: e.target.value })} />
-                    <button type="submit" className="w-full bg-indigo-600 text-white py-2 rounded">Post Job</button>
+                    <button type="submit" className="w-full bg-indigo-600 text-white py-2 rounded">
+                        {editingJob ? "Update Job" : "Post Job"}
+                    </button>
                 </form>
             </Modal>
         </div>
