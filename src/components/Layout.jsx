@@ -37,6 +37,7 @@ const Layout = ({ children }) => {
             case 'tpo':
                 return [
                     { name: 'Dashboard', path: '/admin/dashboard' },
+                    { name: 'Manage Interviews', path: '/admin/mock-interviews' },
                 ];
             default:
                 return [];

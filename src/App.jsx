@@ -22,6 +22,9 @@ const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const About = lazy(() => import('./pages/About'));
 const Services = lazy(() => import('./pages/Services'));
 const Contact = lazy(() => import('./pages/Contact'));
+const JobDetails = lazy(() => import('./pages/student/JobDetails'));
+const ManageInterviews = lazy(() => import('./pages/admin/ManageInterviews'));
+
 
 // Loading Fallback
 const PageLoader = () => (
@@ -63,6 +66,12 @@ function App() {
                                 <JobBoard />
                             </ProtectedRoute>
                         } />
+                        <Route path="/jobs/:id" element={
+                            <ProtectedRoute roles={['student']}>
+                                <JobDetails />
+                            </ProtectedRoute>
+                        } />
+
                         <Route path="/student/applications" element={
                             <ProtectedRoute roles={['student']}>
                                 <MyApplications />
@@ -92,6 +101,12 @@ function App() {
                                 <AdminDashboard />
                             </ProtectedRoute>
                         } />
+                        <Route path="/admin/mock-interviews" element={
+                            <ProtectedRoute roles={['admin', 'tpo']}>
+                                <ManageInterviews />
+                            </ProtectedRoute>
+                        } />
+
                     </Routes>
                 </Suspense>
             </Layout>
