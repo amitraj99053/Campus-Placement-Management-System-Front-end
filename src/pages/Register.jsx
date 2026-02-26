@@ -10,7 +10,7 @@ import { toast } from 'react-toastify';
 
 const Register = () => {
     const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'student' });
-    const { register } = useAuth();
+    const { register, googleLogin } = useAuth();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -106,17 +106,11 @@ const Register = () => {
         try {
             setLoading(true);
             const res = await api.post('/users/google-auth', { token: credentialResponse.credential });
-            localStorage.setItem('userInfo', JSON.stringify(res.data));
-            if (res.data.token) {
-                // Check if new user -> maybe offer face register?
-                // For now, simple reload implies login
-                window.location.reload();
-            } else {
-                window.location.reload();
-            }
+            googleLogin(res.data);
         } catch (err) {
-            console.error(err);
-            setError('Google Signup Failed');
+            console.error('Google Signup Failed:', err);
+            setError(err.response?.data?.message || 'Google Signup Failed');
+        } finally {
             setLoading(false);
         }
     };

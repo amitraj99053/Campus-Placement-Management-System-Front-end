@@ -52,141 +52,206 @@ const AdminDashboard = () => {
                 label: '# of Applications',
                 data: stats?.applications?.breakdown?.map(item => item.count) || [],
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(79, 70, 229, 0.6)',
+                    'rgba(59, 130, 246, 0.6)',
+                    'rgba(16, 185, 129, 0.6)',
+                    'rgba(245, 158, 11, 0.6)',
+                    'rgba(239, 68, 68, 0.6)',
                 ],
                 borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
+                    'rgba(79, 70, 229, 1)',
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(245, 158, 11, 1)',
+                    'rgba(239, 68, 68, 1)',
                 ],
                 borderWidth: 1,
             },
         ],
     };
 
-    const userDistributionData = {
-        labels: ['Students', 'Recruiters'],
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    const trendData = {
+        labels: stats?.trends?.jobs?.map(t => monthNames[t._id - 1]) || [],
         datasets: [
             {
-                label: 'User Base',
-                data: [stats?.users?.students || 0, stats?.users?.recruiters || 0],
-                backgroundColor: ['rgba(75, 192, 192, 0.5)', 'rgba(54, 162, 235, 0.5)'],
+                label: 'Jobs Posted',
+                data: stats?.trends?.jobs?.map(t => t.count) || [],
+                borderColor: 'rgb(79, 70, 229)',
+                backgroundColor: 'rgba(79, 70, 229, 0.5)',
+                tension: 0.3
+            },
+            {
+                label: 'Students Placed',
+                data: stats?.trends?.placements?.map(t => t.count) || [],
+                borderColor: 'rgb(16, 185, 129)',
+                backgroundColor: 'rgba(16, 185, 129, 0.5)',
+                tension: 0.3
             }
         ]
     };
 
+    const topCompaniesData = {
+        labels: stats?.topCompanies?.map(c => c._id) || [],
+        datasets: [
+            {
+                label: 'Hired Students',
+                data: stats?.topCompanies?.map(c => c.count) || [],
+                backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                borderRadius: 4,
+            }
+        ]
+    };
+
+    const placementRate = stats?.users?.students > 0
+        ? ((stats?.applications?.placed / stats?.users?.students) * 100).toFixed(1)
+        : 0;
+
     return (
-        <div className="space-y-8">
-            <h2 className="text-2xl font-bold text-slate-900">Admin Analytics Dashboard</h2>
+        <div className="space-y-8 p-4 md:p-0">
+            <div className="flex justify-between items-center">
+                <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Admin Analytics Overview</h2>
+                <div className="text-sm text-slate-500">Live system updates</div>
+            </div>
 
             {/* Stats Grid */}
-            <div className="grid md:grid-cols-4 gap-6">
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between hover:shadow-md transition-shadow">
                     <div>
-                        <p className="text-gray-500 font-medium">Students</p>
-                        <h3 className="text-3xl font-bold text-indigo-600">{stats?.users?.students}</h3>
+                        <p className="text-slate-500 text-sm font-semibold uppercase tracking-wider mb-1">Students</p>
+                        <h3 className="text-3xl font-black text-indigo-600">{stats?.users?.students}</h3>
                     </div>
-                    <div className="h-12 w-12 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600">
-                        <Users size={24} />
+                    <div className="h-14 w-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-inner">
+                        <Users size={28} />
                     </div>
                 </div>
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between hover:shadow-md transition-shadow">
                     <div>
-                        <p className="text-gray-500 font-medium">Recruiters</p>
-                        <h3 className="text-3xl font-bold text-blue-600">{stats?.users?.recruiters}</h3>
+                        <p className="text-slate-500 text-sm font-semibold uppercase tracking-wider mb-1">Recruiters</p>
+                        <h3 className="text-3xl font-black text-blue-600">{stats?.users?.recruiters}</h3>
                     </div>
-                    <div className="h-12 w-12 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600">
-                        <Briefcase size={24} />
+                    <div className="h-14 w-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 shadow-inner">
+                        <Briefcase size={28} />
                     </div>
                 </div>
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between hover:shadow-md transition-shadow">
                     <div>
-                        <p className="text-gray-500 font-medium">Active Jobs</p>
-                        <h3 className="text-3xl font-bold text-green-600">{stats?.jobs?.active}</h3>
+                        <p className="text-slate-500 text-sm font-semibold uppercase tracking-wider mb-1">Placement Rate</p>
+                        <h3 className="text-3xl font-black text-emerald-600">{placementRate}%</h3>
                     </div>
-                    <div className="h-12 w-12 bg-green-50 rounded-lg flex items-center justify-center text-green-600">
-                        <FileText size={24} />
+                    <div className="h-14 w-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-inner">
+                        <CheckCircle size={28} />
                     </div>
                 </div>
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between hover:shadow-md transition-shadow">
                     <div>
-                        <p className="text-gray-500 font-medium">Placed</p>
-                        <h3 className="text-3xl font-bold text-purple-600">{stats?.applications?.placed}</h3>
+                        <p className="text-slate-500 text-sm font-semibold uppercase tracking-wider mb-1">Active Jobs</p>
+                        <h3 className="text-3xl font-black text-amber-600">{stats?.jobs?.active}</h3>
                     </div>
-                    <div className="h-12 w-12 bg-purple-50 rounded-lg flex items-center justify-center text-purple-600">
-                        <CheckCircle size={24} />
+                    <div className="h-14 w-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 shadow-inner">
+                        <FileText size={28} />
                     </div>
                 </div>
             </div>
 
-            {/* Charts Section */}
-            <div className="grid md:grid-cols-2 gap-8">
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 className="font-bold text-lg mb-4 text-center">Application Status Distribution</h3>
-                    <div className="h-64 flex justify-center">
-                        <Pie data={applicationStatusData} />
-                    </div>
-                </div>
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 className="font-bold text-lg mb-4 text-center">User Distribution</h3>
-                    <div className="h-64 flex justify-center">
+            {/* Main Visuals Section */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 className="font-bold text-xl mb-6 text-slate-800">Placement & Job Trends</h3>
+                    <div className="h-80">
                         <Bar
-                            data={userDistributionData}
+                            data={trendData}
                             options={{
                                 maintainAspectRatio: false,
-                                plugins: { legend: { display: false } }
+                                plugins: {
+                                    legend: { position: 'top', align: 'end' }
+                                },
+                                scales: {
+                                    y: { beginAtZero: true, grid: { drawBorder: false } },
+                                    x: { grid: { display: false } }
+                                }
                             }}
                         />
                     </div>
                 </div>
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 className="font-bold text-xl mb-6 text-slate-800">Application Mix</h3>
+                    <div className="h-80 flex items-center justify-center">
+                        <Pie data={applicationStatusData} options={{ maintainAspectRatio: false }} />
+                    </div>
+                </div>
             </div>
 
-            {/* Verification Section */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                    <CheckCircle className="text-orange-500" />
-                    Pending Approvals ({unverifiedUsers.length})
-                </h3>
-
-                {unverifiedUsers.length === 0 ? (
-                    <p className="text-gray-500">No pending approvals.</p>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {unverifiedUsers.map((user) => (
-                                    <tr key={user._id}>
-                                        <td className="px-6 py-4 whitespace-nowrap font-medium">{user.name}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap capitalize">{user.role}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <button
-                                                onClick={() => handleVerifyUser(user._id)}
-                                                className="text-green-600 hover:text-green-900 font-semibold"
-                                            >
-                                                Approve
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+            <div className="grid md:grid-cols-2 gap-8">
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 className="font-bold text-xl mb-6 text-slate-800">Top Hiring Companies</h3>
+                    <div className="h-80">
+                        <Bar
+                            data={topCompaniesData}
+                            options={{
+                                indexAxis: 'y',
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    x: { beginAtZero: true },
+                                    y: { grid: { display: false } }
+                                }
+                            }}
+                        />
                     </div>
-                )}
+                </div>
+
+                {/* Pending Approvals Table moves here if space permits, or keeps its own section */}
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <h3 className="font-bold text-xl mb-6 text-slate-800 flex items-center gap-2">
+                        <Users className="text-orange-500" />
+                        Pending Member Approvals
+                        <span className="ml-auto bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">{unverifiedUsers.length}</span>
+                    </h3>
+
+                    {unverifiedUsers.length === 0 ? (
+                        <p className="text-slate-500 text-center py-10 italic">No members awaiting approval.</p>
+                    ) : (
+                        <div className="mt-4">
+                            <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                                <table className="min-w-full divide-y divide-slate-200">
+                                    <thead className="bg-slate-50 sticky top-0">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-widest">Name</th>
+                                            <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-widest">Role</th>
+                                            <th className="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-widest">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-slate-200">
+                                        {unverifiedUsers.map((user) => (
+                                            <tr key={user._id} className="hover:bg-slate-50 transition-colors">
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="font-bold text-slate-900">{user.name}</div>
+                                                    <div className="text-xs text-slate-500">{user.email}</div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap capitalize">
+                                                    <span className={`px-2 py-1 rounded-md text-xs font-bold ${user.role === 'recruiter' ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700'
+                                                        }`}>
+                                                        {user.role}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-right">
+                                                    <button
+                                                        onClick={() => handleVerifyUser(user._id)}
+                                                        className="bg-emerald-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-emerald-700 transition-colors shadow-sm"
+                                                    >
+                                                        Approve
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

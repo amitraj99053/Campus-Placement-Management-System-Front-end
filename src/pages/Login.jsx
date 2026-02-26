@@ -12,7 +12,7 @@ const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [selectedRole, setSelectedRole] = useState('student');
     const [loginMethod, setLoginMethod] = useState('email'); // 'email' or 'face'
-    const { login } = useAuth();
+    const { login, googleLogin } = useAuth();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [modelsLoaded, setModelsLoaded] = useState(false);
@@ -59,17 +59,11 @@ const Login = () => {
         try {
             setLoading(true);
             const res = await api.post('/users/google-auth', { token: credentialResponse.credential });
-            localStorage.setItem('userInfo', JSON.stringify(res.data));
-            if (res.data.token) {
-                // Context update might be needed if not auto-detected
-                window.location.reload();
-            } else {
-                // Assuming token is set in cookie or response handles it
-                // For now, reload to trigger auth check
-                window.location.reload();
-            }
+            googleLogin(res.data);
         } catch (err) {
-            setError('Google Login Failed');
+            console.error('Google Login Failed:', err);
+            setError(err.response?.data?.message || 'Google Login Failed');
+        } finally {
             setLoading(false);
         }
     };

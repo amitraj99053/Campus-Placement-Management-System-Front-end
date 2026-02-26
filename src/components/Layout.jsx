@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, User, Menu, X, Briefcase, FileText, Calendar, BarChart } from 'lucide-react';
 import NotificationCenter from './NotificationCenter';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Layout = ({ children }) => {
     const { user, logout } = useAuth();
@@ -274,8 +275,18 @@ const Layout = ({ children }) => {
                     </div>
                 )}
             </header>
-            <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {children}
+            <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-hidden">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={location.pathname}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        {children}
+                    </motion.div>
+                </AnimatePresence>
             </main>
             <footer className="bg-white border-t border-gray-200 mt-auto">
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">

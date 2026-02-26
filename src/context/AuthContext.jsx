@@ -14,16 +14,22 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                // We need an endpoint to get the current user profile from the cookie
-                // For now, let's assume if there's a stored user in localStorage we use it, 
-                // OR better, we try to hit a /profile endpoint.
-                // Since we haven't built /profile yet, strictly speaking we rely on login response.
+                // Prefer server-validated session using HTTP-only cookie
+                const { data } = await api.get('/users/profile');
+                setUser(data);
+                localStorage.setItem('userInfo', JSON.stringify(data));
+            } catch (error) {
+                // Fallback to locally stored user if available
                 const storedUser = localStorage.getItem('userInfo');
                 if (storedUser) {
-                    setUser(JSON.parse(storedUser));
+                    try {
+                        setUser(JSON.parse(storedUser));
+                    } catch {
+                        localStorage.removeItem('userInfo');
+                    }
+                } else {
+                    setUser(null);
                 }
-            } catch (error) {
-                console.error('Auth check failed', error);
             } finally {
                 setLoading(false);
             }
@@ -31,29 +37,40 @@ export const AuthProvider = ({ children }) => {
         checkAuth();
     }, []);
 
+    const completeLogin = (userData, redirectPath = '/dashboard') => {
+        setUser(userData);
+        localStorage.setItem('userInfo', JSON.stringify(userData));
+        navigate(redirectPath);
+    };
+
     const login = async (email, password) => {
         const { data } = await api.post('/users/auth', { email, password });
-        setUser(data);
-        localStorage.setItem('userInfo', JSON.stringify(data));
-        navigate('/dashboard');
+        completeLogin(data);
     };
 
     const register = async (name, email, password, role) => {
         const { data } = await api.post('/users', { name, email, password, role });
-        setUser(data);
-        localStorage.setItem('userInfo', JSON.stringify(data));
-        navigate('/dashboard');
+        completeLogin(data, '/dashboard');
+    };
+
+    const googleLogin = (data) => {
+        completeLogin(data);
     };
 
     const logout = async () => {
-        await api.post('/users/logout');
-        setUser(null);
-        localStorage.removeItem('userInfo');
-        navigate('/login');
+        try {
+            await api.post('/users/logout');
+        } catch (error) {
+            console.error('Logout API failed but clearing local session:', error);
+        } finally {
+            setUser(null);
+            localStorage.removeItem('userInfo');
+            navigate('/login');
+        }
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, register, googleLogin, logout, loading }}>
             {!loading && children}
         </AuthContext.Provider>
     );

@@ -16,10 +16,16 @@ import {
     ChevronDown,
     Globe
 } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 const Home = () => {
     return (
         <div className="space-y-0 pb-0 bg-slate-50">
+            <Helmet>
+                <title>Home | Campus Placement Management System</title>
+                <meta name="description" content="CPMS bridges the gap between talent and opportunity. A unified platform for Universities, Recruiters, and Students to automate campus recruitment." />
+                <meta name="keywords" content="campus placement, recruitment, jobs, internships, university placement" />
+            </Helmet>
             {/* Hero Section */}
             <section className="relative bg-white pt-24 pb-32 overflow-hidden">
                 <div className="absolute inset-0 z-0">

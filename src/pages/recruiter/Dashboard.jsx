@@ -5,6 +5,10 @@ import Modal from '../../components/Modal';
 import { Plus, Users, Edit, Trash } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
+import { Pie, Bar } from 'react-chartjs-2';
+
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 const RecruiterDashboard = () => {
     const { user } = useAuth();
@@ -16,8 +20,11 @@ const RecruiterDashboard = () => {
     });
     const [editingJob, setEditingJob] = useState(null);
 
+    const [stats, setStats] = useState(null);
+
     useEffect(() => {
         fetchMyJobs();
+        fetchStats();
     }, []);
 
     const fetchMyJobs = async () => {
@@ -28,6 +35,26 @@ const RecruiterDashboard = () => {
             console.error('Error fetching jobs', error);
             toast.error('Failed to fetch your jobs');
         }
+    };
+
+    const fetchStats = async () => {
+        try {
+            const { data } = await api.get('/analytics');
+            setStats(data.recruiterStats);
+        } catch (error) {
+            console.error('Error fetching stats', error);
+        }
+    };
+
+    const chartData = {
+        labels: ['Jobs Posted', 'Applications Received'],
+        datasets: [
+            {
+                label: 'Statistics',
+                data: [stats?.jobsPosted || 0, stats?.totalApplicationsReceived || 0],
+                backgroundColor: ['rgba(79, 70, 229, 0.6)', 'rgba(16, 185, 129, 0.6)'],
+            },
+        ],
     };
 
     const handleCreateJob = async (e) => {
@@ -110,6 +137,32 @@ const RecruiterDashboard = () => {
                     <Plus size={20} />
                     Post New Job
                 </button>
+            </div>
+
+            {/* Stats Chart */}
+            <div className="grid md:grid-cols-2 gap-6 pb-6">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h3 className="font-bold text-lg mb-4">Recruitment Overview</h3>
+                    <div className="h-48">
+                        <Bar
+                            data={chartData}
+                            options={{
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false } }
+                            }}
+                        />
+                    </div>
+                </div>
+                <div className="bg-indigo-600 p-6 rounded-xl shadow-sm text-white flex flex-col justify-center">
+                    <h3 className="text-indigo-100 font-medium mb-1">Total Impact</h3>
+                    <div className="flex items-baseline gap-2">
+                        <span className="text-4xl font-bold">{stats?.totalApplicationsReceived || 0}</span>
+                        <span className="text-indigo-100 font-medium ml-1">Candidates reached</span>
+                    </div>
+                    <p className="mt-4 text-indigo-100 text-sm">
+                        You have posted {stats?.jobsPosted || 0} job opportunities on the platform. Keep it up!
+                    </p>
+                </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
