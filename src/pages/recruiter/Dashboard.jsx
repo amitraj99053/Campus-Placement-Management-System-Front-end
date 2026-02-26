@@ -47,12 +47,19 @@ const RecruiterDashboard = () => {
     };
 
     const chartData = {
-        labels: ['Jobs Posted', 'Applications Received'],
+        labels: stats?.applicationBreakdown?.map(item => item._id) || ['Applied', 'Shortlisted', 'Selected', 'Rejected'],
         datasets: [
             {
-                label: 'Statistics',
-                data: [stats?.jobsPosted || 0, stats?.totalApplicationsReceived || 0],
-                backgroundColor: ['rgba(79, 70, 229, 0.6)', 'rgba(16, 185, 129, 0.6)'],
+                label: 'Applications',
+                data: stats?.applicationBreakdown?.length > 0
+                    ? stats.applicationBreakdown.map(item => item.count)
+                    : [0, 0, 0, 0],
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.6)',
+                    'rgba(79, 70, 229, 0.6)',
+                    'rgba(16, 185, 129, 0.6)',
+                    'rgba(239, 68, 68, 0.6)'
+                ],
             },
         ],
     };
@@ -140,28 +147,30 @@ const RecruiterDashboard = () => {
             </div>
 
             {/* Stats Chart */}
-            <div className="grid md:grid-cols-2 gap-6 pb-6">
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <h3 className="font-bold text-lg mb-4">Recruitment Overview</h3>
-                    <div className="h-48">
-                        <Bar
+            <div className="grid md:grid-cols-3 gap-6 pb-6">
+                <div className="md:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h3 className="font-bold text-lg mb-4 text-slate-800">Application Status Mix</h3>
+                    <div className="h-64 flex justify-center">
+                        <Pie
                             data={chartData}
                             options={{
                                 maintainAspectRatio: false,
-                                plugins: { legend: { display: false } }
+                                plugins: { legend: { position: 'right' } }
                             }}
                         />
                     </div>
                 </div>
-                <div className="bg-indigo-600 p-6 rounded-xl shadow-sm text-white flex flex-col justify-center">
-                    <h3 className="text-indigo-100 font-medium mb-1">Total Impact</h3>
-                    <div className="flex items-baseline gap-2">
-                        <span className="text-4xl font-bold">{stats?.totalApplicationsReceived || 0}</span>
-                        <span className="text-indigo-100 font-medium ml-1">Candidates reached</span>
+                <div className="flex flex-col gap-6">
+                    <div className="bg-indigo-600 p-6 rounded-xl shadow-sm text-white flex-1 flex flex-col justify-center">
+                        <h3 className="text-indigo-100 font-medium mb-1">Total Impact</h3>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-4xl font-bold">{stats?.totalApplicationsReceived || 0}</span>
+                            <span className="text-indigo-100 font-medium ml-1">Candidates reached</span>
+                        </div>
+                        <p className="mt-4 text-indigo-100 text-sm">
+                            Across {stats?.jobsPosted || 0} active job postings.
+                        </p>
                     </div>
-                    <p className="mt-4 text-indigo-100 text-sm">
-                        You have posted {stats?.jobsPosted || 0} job opportunities on the platform. Keep it up!
-                    </p>
                 </div>
             </div>
 
