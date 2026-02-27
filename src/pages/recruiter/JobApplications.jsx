@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { ArrowLeft, User, Mail, FileText, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { ArrowLeft, User, Mail, FileText, CheckCircle, XCircle, Clock, MessageSquare, X } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 const JobApplications = () => {
@@ -10,6 +10,13 @@ const JobApplications = () => {
     const [applications, setApplications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [job, setJob] = useState(null);
+
+    // Modal State
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedApp, setSelectedApp] = useState(null);
+    const [selectedStatus, setSelectedStatus] = useState('');
+    const [feedbackText, setFeedbackText] = useState('');
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -31,15 +38,30 @@ const JobApplications = () => {
         }
     };
 
-    const handleStatusUpdate = async (appId, newStatus) => {
+    const openFeedbackModal = (app) => {
+        setSelectedApp(app);
+        setSelectedStatus(app.status === 'Applied' ? 'Shortlisted' : app.status);
+        setFeedbackText('');
+        setIsModalOpen(true);
+    };
+
+    const handleStatusUpdate = async () => {
+        if (!selectedApp) return;
+        setSubmitting(true);
         try {
-            await api.put(`/applications/${appId}`, { status: newStatus });
-            toast.success(`Application ${newStatus}`);
+            await api.put(`/applications/${selectedApp._id}`, {
+                status: selectedStatus,
+                feedback: feedbackText
+            });
+            toast.success(`Application ${selectedStatus}`);
             setApplications(applications.map(app =>
-                app._id === appId ? { ...app, status: newStatus } : app
+                app._id === selectedApp._id ? { ...app, status: selectedStatus, feedback: feedbackText } : app
             ));
+            setIsModalOpen(false);
         } catch (error) {
             toast.error('Failed to update status');
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -119,21 +141,22 @@ const JobApplications = () => {
                                                         <FileText size={18} />
                                                     </a>
                                                 )}
+                                                {app.feedback && (
+                                                    <div
+                                                        className="p-2 text-gray-400 hover:text-gray-600 rounded cursor-help group relative"
+                                                    >
+                                                        <MessageSquare size={18} />
+                                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-10 whitespace-normal">
+                                                            {app.feedback}
+                                                        </div>
+                                                    </div>
+                                                )}
                                                 <button
-                                                    onClick={() => handleStatusUpdate(app._id, 'Shortlisted')}
-                                                    className="p-2 text-green-600 hover:bg-green-50 rounded"
-                                                    title="Shortlist"
-                                                    disabled={app.status === 'Shortlisted'}
+                                                    onClick={() => openFeedbackModal(app)}
+                                                    className="px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 rounded-lg transition"
+                                                    title="Update Status"
                                                 >
-                                                    <CheckCircle size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleStatusUpdate(app._id, 'Rejected')}
-                                                    className="p-2 text-red-600 hover:bg-red-50 rounded"
-                                                    title="Reject"
-                                                    disabled={app.status === 'Rejected'}
-                                                >
-                                                    <XCircle size={18} />
+                                                    Process Candidate
                                                 </button>
                                             </div>
                                         </td>
@@ -144,6 +167,90 @@ const JobApplications = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Feedback Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+                        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+                            <h3 className="text-xl font-bold text-gray-900">
+                                Update Candidate Status
+                            </h3>
+                            <button
+                                onClick={() => setIsModalOpen(false)}
+                                className="text-gray-400 hover:text-gray-600 transition"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="p-6 space-y-5">
+                            <div>
+                                <p className="text-sm font-medium text-gray-700 mb-1">Candidate</p>
+                                <p className="text-gray-900 font-semibold">{selectedApp?.student?.name}</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    New Selection Status
+                                </label>
+                                <select
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                                    value={selectedStatus}
+                                    onChange={(e) => setSelectedStatus(e.target.value)}
+                                >
+                                    <option value="Applied" disabled>Applied (Initial)</option>
+                                    <option value="Shortlisted">Shortlisted</option>
+                                    <option value="Interview Scheduled">Interview Scheduled</option>
+                                    <option value="Selected">Selected</option>
+                                    <option value="Rejected">Rejected</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Message to Candidate & TPO (Optional)
+                                </label>
+                                <textarea
+                                    value={feedbackText}
+                                    onChange={(e) => setFeedbackText(e.target.value)}
+                                    placeholder={selectedStatus === 'Rejected'
+                                        ? "Thank you for your interest. Unfortunately..."
+                                        : "Congratulations on moving to the next stage! Here are the next steps..."}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[120px] resize-y"
+                                ></textarea>
+                                <p className="text-xs text-gray-500 mt-2">
+                                    This message will be emailed directly to the student and cc'd to the Placement Office.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="p-6 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+                            <button
+                                onClick={() => setIsModalOpen(false)}
+                                disabled={submitting}
+                                className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleStatusUpdate}
+                                disabled={submitting}
+                                className={`px-5 py-2.5 text-sm font-medium text-white rounded-xl transition flex items-center justify-center min-w-[120px] ${selectedStatus === 'Rejected'
+                                        ? 'bg-red-600 hover:bg-red-700'
+                                        : 'bg-indigo-600 hover:bg-indigo-700'
+                                    }`}
+                            >
+                                {submitting ? (
+                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                    'Update Status & Notify'
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

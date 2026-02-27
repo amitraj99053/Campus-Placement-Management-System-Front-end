@@ -11,7 +11,7 @@ import { Pie, Bar } from 'react-chartjs-2';
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 const RecruiterDashboard = () => {
-    const { user } = useAuth();
+    const { user, refreshUser } = useAuth();
     const [jobs, setJobs] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newJob, setNewJob] = useState({
@@ -23,6 +23,7 @@ const RecruiterDashboard = () => {
     const [stats, setStats] = useState(null);
 
     useEffect(() => {
+        refreshUser();
         fetchMyJobs();
         fetchStats();
     }, []);

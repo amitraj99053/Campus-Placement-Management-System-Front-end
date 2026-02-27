@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { Briefcase, Building, MapPin, Calendar, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Briefcase, Building, MapPin, Calendar, Clock, CheckCircle, XCircle, AlertCircle, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const MyApplications = () => {
@@ -120,6 +120,21 @@ const MyApplications = () => {
                                         </span>
                                     </div>
                                 </div>
+
+                                {/* Recruiter Feedback / Message Box */}
+                                {app.feedback && (
+                                    <div className="mt-5 bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 flex gap-3 items-start">
+                                        <div className="bg-indigo-100 p-2 rounded-lg text-indigo-600 flex-shrink-0 mt-0.5">
+                                            <MessageSquare size={16} />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-bold text-indigo-900 mb-1">Message from Recruiter</h4>
+                                            <p className="text-sm text-indigo-800 leading-relaxed whitespace-pre-wrap">
+                                                {app.feedback}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         );
                     })}

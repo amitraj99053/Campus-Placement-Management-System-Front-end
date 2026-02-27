@@ -11,30 +11,31 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                // Prefer server-validated session using HTTP-only cookie
-                const { data } = await api.get('/users/profile');
-                setUser(data);
-                localStorage.setItem('userInfo', JSON.stringify(data));
-            } catch (error) {
-                // Fallback to locally stored user if available
-                const storedUser = localStorage.getItem('userInfo');
-                if (storedUser) {
-                    try {
-                        setUser(JSON.parse(storedUser));
-                    } catch {
-                        localStorage.removeItem('userInfo');
-                    }
-                } else {
-                    setUser(null);
+    const refreshUser = async () => {
+        try {
+            // Prefer server-validated session using HTTP-only cookie
+            const { data } = await api.get('/users/profile');
+            setUser(data);
+            localStorage.setItem('userInfo', JSON.stringify(data));
+        } catch (error) {
+            // Fallback to locally stored user if available
+            const storedUser = localStorage.getItem('userInfo');
+            if (storedUser) {
+                try {
+                    setUser(JSON.parse(storedUser));
+                } catch {
+                    localStorage.removeItem('userInfo');
                 }
-            } finally {
-                setLoading(false);
+            } else {
+                setUser(null);
             }
-        };
-        checkAuth();
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        refreshUser();
     }, []);
 
     const completeLogin = (userData, redirectPath = '/dashboard') => {
@@ -70,7 +71,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, googleLogin, logout, loading }}>
+        <AuthContext.Provider value={{ user, refreshUser, login, register, googleLogin, logout, loading }}>
             {!loading && children}
         </AuthContext.Provider>
     );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { Users, Briefcase, FileText, CheckCircle, XCircle } from 'lucide-react';
+import { Users, Briefcase, FileText, CheckCircle, XCircle, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
@@ -11,6 +11,7 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarEle
 const AdminDashboard = () => {
     const [stats, setStats] = useState(null);
     const [unverifiedUsers, setUnverifiedUsers] = useState([]);
+    const [allApplications, setAllApplications] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -19,12 +20,14 @@ const AdminDashboard = () => {
 
     const fetchData = async () => {
         try {
-            const [statsRes, usersRes] = await Promise.all([
+            const [statsRes, usersRes, appsRes] = await Promise.all([
                 api.get('/analytics'),
-                api.get('/users/unverified')
+                api.get('/users/unverified'),
+                api.get('/applications/all')
             ]);
             setStats(statsRes.data);
             setUnverifiedUsers(usersRes.data);
+            setAllApplications(appsRes.data);
         } catch (error) {
             console.error(error);
         } finally {
@@ -252,6 +255,73 @@ const AdminDashboard = () => {
                         </div>
                     )}
                 </div>
+            </div>
+
+            {/* Recent Hiring Activity */}
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 overflow-hidden mt-8">
+                <h3 className="font-bold text-xl mb-6 text-slate-800 flex items-center gap-2">
+                    <Briefcase className="text-indigo-500" />
+                    Complete Hiring Process Overview
+                    <span className="ml-auto bg-indigo-100 text-indigo-600 text-xs px-2 py-1 rounded-full">{allApplications.length} Applications</span>
+                </h3>
+
+                {allApplications.length === 0 ? (
+                    <p className="text-slate-500 text-center py-10 italic">No applications processed yet.</p>
+                ) : (
+                    <div className="mt-4 overflow-x-auto">
+                        <table className="min-w-full divide-y divide-slate-200">
+                            <thead className="bg-slate-50">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-widest">Student</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-widest">Company & Role</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-widest">Status</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-widest">Date</th>
+                                    <th className="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-widest">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-slate-200">
+                                {allApplications.map((app) => (
+                                    <tr key={app._id} className="hover:bg-slate-50 transition-colors">
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="font-bold text-slate-900">{app.student?.name || 'Unknown'}</div>
+                                            <div className="text-xs text-slate-500">{app.student?.email || 'N/A'}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="font-bold text-slate-900">{app.job?.company || 'Unknown Company'}</div>
+                                            <div className="text-xs text-slate-500">{app.job?.title || 'Unknown Role'}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`px-2 py-1 rounded-md text-xs font-bold 
+                                                ${app.status === 'Applied' ? 'bg-blue-100 text-blue-700' :
+                                                    app.status === 'Shortlisted' ? 'bg-amber-100 text-amber-700' :
+                                                        app.status === 'Interview Scheduled' ? 'bg-purple-100 text-purple-700' :
+                                                            app.status === 'Selected' ? 'bg-green-100 text-green-700' :
+                                                                'bg-red-100 text-red-700'}`}>
+                                                {app.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                                            {new Date(app.createdAt).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                                            {app.feedback && (
+                                                <div className="inline-block p-1.5 text-slate-400 hover:text-indigo-600 rounded cursor-help group relative transition-colors">
+                                                    <MessageSquare size={18} />
+                                                    <div className="absolute right-full mr-2 top-1/2 -translate-y-1/2 w-64 p-3 bg-slate-900 text-white text-xs rounded shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-10 whitespace-normal text-left">
+                                                        <p className="font-bold mb-1 text-slate-300">Recruiter Note:</p>
+                                                        {app.feedback}
+                                                        {/* Arrow */}
+                                                        <div className="absolute top-1/2 -translate-y-1/2 -right-1 border-[6px] border-transparent border-l-slate-900"></div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
         </div>
     );
