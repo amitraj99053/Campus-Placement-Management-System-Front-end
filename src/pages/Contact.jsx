@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, MessageSquareText, HelpCircle, ArrowRight } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -93,9 +94,9 @@ const Contact = () => {
                             <p className="text-indigo-100 mb-6 relative z-10 text-sm leading-relaxed">
                                 Browse our comprehensive frequently asked questions section to find quick solutions to common issues.
                             </p>
-                            <button className="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-5 py-2.5 rounded-xl font-semibold transition backdrop-blur-sm relative z-10 text-sm">
+                            <Link to="/faq" className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-5 py-2.5 rounded-xl font-semibold transition backdrop-blur-sm relative z-10 text-sm">
                                 Visit FAQ <ArrowRight size={16} />
-                            </button>
+                            </Link>
                         </div>
                     </div>
 
