@@ -12,7 +12,8 @@ const ManageInterviews = () => {
     const [feedbackData, setFeedbackData] = useState({
         feedback: '',
         rating: 5,
-        status: 'Completed'
+        status: 'Completed',
+        meetingLink: ''
     });
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('All');
@@ -38,7 +39,8 @@ const ManageInterviews = () => {
         setFeedbackData({
             feedback: interview.feedback || '',
             rating: interview.rating || 5,
-            status: interview.status || 'Completed'
+            status: interview.status || 'Completed',
+            meetingLink: interview.meetingLink || ''
         });
         setIsModalOpen(true);
     };
@@ -125,10 +127,10 @@ const ManageInterviews = () => {
                                         <div className="flex items-center gap-2">
                                             <h3 className="text-xl font-bold text-slate-900">{interview.topic}</h3>
                                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase border ${interview.status === 'Completed' || interview.status === 'Feedback Given'
-                                                    ? 'bg-green-50 text-green-700 border-green-100'
-                                                    : interview.status === 'Scheduled'
-                                                        ? 'bg-blue-50 text-blue-700 border-blue-100'
-                                                        : 'bg-amber-50 text-amber-700 border-amber-100'
+                                                ? 'bg-green-50 text-green-700 border-green-100'
+                                                : interview.status === 'Scheduled'
+                                                    ? 'bg-blue-50 text-blue-700 border-blue-100'
+                                                    : 'bg-amber-50 text-amber-700 border-amber-100'
                                                 }`}>
                                                 {interview.status}
                                             </span>
@@ -146,7 +148,7 @@ const ManageInterviews = () => {
                                         onClick={() => handleFeedbackClick(interview)}
                                         className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition font-semibold text-sm"
                                     >
-                                        <MessageSquare size={16} /> Provide Feedback
+                                        <MessageSquare size={16} /> Manage Interview
                                     </button>
                                 </div>
                             </div>
@@ -173,7 +175,7 @@ const ManageInterviews = () => {
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                title={`Interview Feedback: ${selectedInterview?.topic}`}
+                title={`Manage Interview: ${selectedInterview?.topic}`}
             >
                 <form onSubmit={handleFeedbackSubmit} className="space-y-6">
                     <div>
@@ -182,7 +184,7 @@ const ManageInterviews = () => {
                         <textarea
                             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none h-40 resize-none"
                             placeholder="Share your thoughts on performance, strengths, and areas for improvement..."
-                            required
+                            required={feedbackData.status === 'Feedback Given' || feedbackData.status === 'Completed'}
                             value={feedbackData.feedback}
                             onChange={(e) => setFeedbackData({ ...feedbackData, feedback: e.target.value })}
                         />
@@ -210,6 +212,7 @@ const ManageInterviews = () => {
                                 value={feedbackData.status}
                                 onChange={(e) => setFeedbackData({ ...feedbackData, status: e.target.value })}
                             >
+                                <option value="Pending">Pending</option>
                                 <option value="Scheduled">Scheduled</option>
                                 <option value="Completed">Completed</option>
                                 <option value="Feedback Given">Feedback Given</option>
@@ -217,11 +220,25 @@ const ManageInterviews = () => {
                         </div>
                     </div>
 
+                    {feedbackData.status === 'Scheduled' && (
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">Meeting Link</label>
+                            <input
+                                type="url"
+                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                                placeholder="https://meet.google.com/..."
+                                required={feedbackData.status === 'Scheduled'}
+                                value={feedbackData.meetingLink}
+                                onChange={(e) => setFeedbackData({ ...feedbackData, meetingLink: e.target.value })}
+                            />
+                        </div>
+                    )}
+
                     <button
                         type="submit"
                         className="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition shadow-xl shadow-indigo-100 flex items-center justify-center gap-2"
                     >
-                        <CheckCircle size={20} /> Save Feedback & Notify Student
+                        <CheckCircle size={20} /> Save Changes & Notify Student
                     </button>
                 </form>
             </Modal>

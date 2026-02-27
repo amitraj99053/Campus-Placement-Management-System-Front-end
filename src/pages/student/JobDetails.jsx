@@ -28,13 +28,14 @@ const JobDetails = () => {
     }, [id, navigate]);
 
     const handleApply = async () => {
-        if (!confirm('Are you sure you want to apply for this position?')) return;
-
+        console.log("Apply button clicked for job detail:", id);
         setApplying(true);
         try {
-            await api.post('/applications', { jobId: id });
+            const response = await api.post('/applications', { jobId: id });
+            console.log("Apply successful:", response.data);
             toast.success('Application submitted successfully!');
         } catch (error) {
+            console.error("Apply error:", error);
             toast.error(error.response?.data?.message || 'Failed to apply');
         } finally {
             setApplying(false);

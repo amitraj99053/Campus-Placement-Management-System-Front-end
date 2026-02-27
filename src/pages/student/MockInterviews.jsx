@@ -66,7 +66,7 @@ const MockInterviews = () => {
                     interviews.map((interview) => (
                         <div key={interview._id} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
                             <div className={`absolute top-0 right-0 w-16 h-16 rounded-bl-full -mr-4 -mt-4 opacity-20 ${interview.status === 'Completed' ? 'bg-green-500' :
-                                    interview.status === 'Scheduled' ? 'bg-blue-500' : 'bg-gray-500'
+                                interview.status === 'Scheduled' ? 'bg-blue-500' : 'bg-gray-500'
                                 }`}></div>
 
                             <div className="flex justify-between items-start mb-6">
@@ -107,10 +107,20 @@ const MockInterviews = () => {
                                     <div className="bg-blue-100 p-2 rounded-lg text-blue-600">
                                         <Video size={20} />
                                     </div>
-                                    <div>
+                                    <div className="flex-grow">
                                         <p className="text-sm font-semibold text-blue-900">Upcoming Session</p>
                                         <p className="text-xs text-blue-700">Prepare your camera and microphone.</p>
                                     </div>
+                                    {interview.meetingLink && (
+                                        <a
+                                            href={interview.meetingLink}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition shadow-md whitespace-nowrap flex items-center gap-2"
+                                        >
+                                            <Video size={16} /> Join Now
+                                        </a>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -163,9 +173,9 @@ const MockInterviews = () => {
                         </div>
                         <h4 className="font-bold text-lg mb-2">Technical Resources</h4>
                         <ul className="text-sm text-indigo-100 space-y-2">
-                            <li className="hover:text-white transition">• Top 50 Data Structure Questions</li>
-                            <li className="hover:text-white transition">• System Design Primer</li>
-                            <li className="hover:text-white transition">• Database SQL vs NoSQL</li>
+                            <li className="hover:text-white transition"><a href="https://leetcode.com/problem-list/top-interview-questions/" target="_blank" rel="noopener noreferrer">• Top 50 Data Structure Questions</a></li>
+                            <li className="hover:text-white transition"><a href="https://github.com/donnemartin/system-design-primer" target="_blank" rel="noopener noreferrer">• System Design Primer</a></li>
+                            <li className="hover:text-white transition"><a href="https://www.geeksforgeeks.org/difference-between-sql-and-nosql/" target="_blank" rel="noopener noreferrer">• Database SQL vs NoSQL</a></li>
                         </ul>
                     </div>
 
@@ -175,9 +185,9 @@ const MockInterviews = () => {
                         </div>
                         <h4 className="font-bold text-lg mb-2">HR Round Tips</h4>
                         <ul className="text-sm text-indigo-100 space-y-2">
-                            <li className="hover:text-white transition">• "Tell me about yourself" Guide</li>
-                            <li className="hover:text-white transition">• STAR Method for Behavioral QA</li>
-                            <li className="hover:text-white transition">• Questions to ask the interviewer</li>
+                            <li className="hover:text-white transition"><a href="https://hbr.org/2021/11/how-to-answer-tell-me-about-yourself-in-an-interview" target="_blank" rel="noopener noreferrer">• "Tell me about yourself" Guide</a></li>
+                            <li className="hover:text-white transition"><a href="https://www.thebalancemoney.com/what-is-the-star-interview-response-technique-2061629" target="_blank" rel="noopener noreferrer">• STAR Method for Behavioral QA</a></li>
+                            <li className="hover:text-white transition"><a href="https://www.themuse.com/advice/51-interview-questions-you-should-be-asking" target="_blank" rel="noopener noreferrer">• Questions to ask the interviewer</a></li>
                         </ul>
                     </div>
 
@@ -187,9 +197,9 @@ const MockInterviews = () => {
                         </div>
                         <h4 className="font-bold text-lg mb-2">Practice Tools</h4>
                         <ul className="text-sm text-indigo-100 space-y-2">
-                            <li className="hover:text-white transition">• LeetCode / HackerRank</li>
-                            <li className="hover:text-white transition">• Pramp (Peer Interviews)</li>
-                            <li className="hover:text-white transition">• Resume Review Checklist</li>
+                            <li className="hover:text-white transition"><a href="https://leetcode.com/" target="_blank" rel="noopener noreferrer">• LeetCode / HackerRank</a></li>
+                            <li className="hover:text-white transition"><a href="https://www.pramp.com/ref/hbg" target="_blank" rel="noopener noreferrer">• Pramp (Peer Interviews)</a></li>
+                            <li className="hover:text-white transition"><a href="https://resumeworded.com/" target="_blank" rel="noopener noreferrer">• Resume Review Checklist</a></li>
                         </ul>
                     </div>
                 </div>

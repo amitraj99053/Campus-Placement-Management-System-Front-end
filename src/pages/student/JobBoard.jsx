@@ -47,13 +47,14 @@ const JobBoard = () => {
     }, [searchTerm, filterType, jobs]);
 
     const handleApply = async (jobId) => {
-        if (!confirm('Are you sure you want to apply for this position?')) return;
-
+        console.log("Apply button clicked for job:", jobId);
         setApplyingJobId(jobId);
         try {
-            await api.post('/applications', { jobId });
+            const response = await api.post('/applications', { jobId });
+            console.log("Apply successful:", response.data);
             toast.success('Application submitted successfully!');
         } catch (error) {
+            console.error("Apply error:", error);
             toast.error(error.response?.data?.message || 'Failed to apply');
         } finally {
             setApplyingJobId(null);
@@ -137,8 +138,8 @@ const JobBoard = () => {
                                     </div>
                                 </div>
                                 <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase ${job.type === 'Internship'
-                                        ? 'bg-purple-100 text-purple-700'
-                                        : 'bg-green-100 text-green-700'
+                                    ? 'bg-purple-100 text-purple-700'
+                                    : 'bg-green-100 text-green-700'
                                     }`}>
                                     {job.type}
                                 </span>
@@ -174,8 +175,8 @@ const JobBoard = () => {
                                     onClick={() => handleApply(job._id)}
                                     disabled={applyingJobId === job._id}
                                     className={`flex-1 px-4 py-2.5 rounded-xl text-white text-sm font-semibold shadow-lg shadow-indigo-200 transition-all active:scale-95 ${applyingJobId === job._id
-                                            ? 'bg-indigo-400 cursor-wait'
-                                            : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-300'
+                                        ? 'bg-indigo-400 cursor-wait'
+                                        : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-300'
                                         }`}
                                 >
                                     {applyingJobId === job._id ? (
