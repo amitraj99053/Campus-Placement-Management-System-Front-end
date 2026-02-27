@@ -243,11 +243,11 @@ const MockInterviews = () => {
                                     <p className="text-xs text-indigo-300/80 mt-0.5">Must-do algorithmic patterns.</p>
                                 </div>
                             </a>
-                            <a href="https://www.interviewbit.com/mern-stack-interview-questions/" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
+                            <a href="https://www.interviewbit.com/technical-interview-questions/#programming-language-tools-technologies" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
                                 <Layout size={18} className="text-indigo-300 mt-0.5 group-hover:text-indigo-200" />
                                 <div>
-                                    <p className="font-semibold text-sm text-indigo-50 group-hover:text-white">MERN Stack Interviews</p>
-                                    <p className="text-xs text-indigo-300/80 mt-0.5">Top MERN questions & answers.</p>
+                                    <p className="font-semibold text-sm text-indigo-50 group-hover:text-white">Technical Interviews</p>
+                                    <p className="text-xs text-indigo-300/80 mt-0.5">Top technical questions & answers.</p>
                                 </div>
                             </a>
                             <a href="https://leetcode.com/studyplan/top-sql-50/" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
