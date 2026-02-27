@@ -236,25 +236,25 @@ const MockInterviews = () => {
                         </div>
                         <h4 className="font-bold text-xl mb-4 text-white">Technical Rounds</h4>
                         <div className="space-y-3">
-                            <a href="https://leetcode.com/problem-list/top-interview-questions/" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
+                            <a href="https://leetcode.com/studyplan/top-interview-150/" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
                                 <FileText size={18} className="text-indigo-300 mt-0.5 group-hover:text-indigo-200" />
                                 <div>
-                                    <p className="font-semibold text-sm text-indigo-50 group-hover:text-white">Top 50 DSA Questions</p>
-                                    <p className="text-xs text-indigo-300/80 mt-0.5">Most frequently asked arrays & strings.</p>
+                                    <p className="font-semibold text-sm text-indigo-50 group-hover:text-white">Top Interview 150</p>
+                                    <p className="text-xs text-indigo-300/80 mt-0.5">Must-do algorithmic patterns.</p>
                                 </div>
                             </a>
-                            <a href="https://github.com/donnemartin/system-design-primer" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
+                            <a href="https://leetcode.com/studyplan/leetcode-75/" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
                                 <Layout size={18} className="text-indigo-300 mt-0.5 group-hover:text-indigo-200" />
                                 <div>
-                                    <p className="font-semibold text-sm text-indigo-50 group-hover:text-white">System Design Primer</p>
-                                    <p className="text-xs text-indigo-300/80 mt-0.5">Learn how to design scalable systems.</p>
+                                    <p className="font-semibold text-sm text-indigo-50 group-hover:text-white">LeetCode 75</p>
+                                    <p className="text-xs text-indigo-300/80 mt-0.5">Essential data structures guide.</p>
                                 </div>
                             </a>
-                            <a href="https://www.geeksforgeeks.org/sql-tutorial/" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
+                            <a href="https://leetcode.com/studyplan/top-sql-50/" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
                                 <Code size={18} className="text-indigo-300 mt-0.5 group-hover:text-indigo-200" />
                                 <div>
-                                    <p className="font-semibold text-sm text-indigo-50 group-hover:text-white">Database SQL Cheatsheet</p>
-                                    <p className="text-xs text-indigo-300/80 mt-0.5">Joins, indexes, and normal forms.</p>
+                                    <p className="font-semibold text-sm text-indigo-50 group-hover:text-white">Top SQL 50</p>
+                                    <p className="text-xs text-indigo-300/80 mt-0.5">Frequently asked database queries.</p>
                                 </div>
                             </a>
                         </div>
