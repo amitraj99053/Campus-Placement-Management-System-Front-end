@@ -267,21 +267,21 @@ const MockInterviews = () => {
                         </div>
                         <h4 className="font-bold text-xl mb-4 text-white">HR & Behavioral</h4>
                         <div className="space-y-3">
-                            <a href="https://hbr.org/2021/11/how-to-answer-tell-me-about-yourself-in-an-interview" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
+                            <a href="https://www.indeed.com/career-advice/interviewing/how-to-answer-tell-me-about-yourself" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
                                 <MessageSquare size={18} className="text-purple-300 mt-0.5 group-hover:text-purple-200" />
                                 <div>
                                     <p className="font-semibold text-sm text-purple-50 group-hover:text-white">"Tell me about yourself"</p>
-                                    <p className="text-xs text-purple-300/80 mt-0.5">The perfect framework for introductions.</p>
+                                    <p className="text-xs text-purple-300/80 mt-0.5">Indeed's official introduction guide.</p>
                                 </div>
                             </a>
-                            <a href="https://www.themuse.com/advice/star-interview-method" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
+                            <a href="https://www.indeed.com/career-advice/interviewing/how-to-use-the-star-interview-response-technique" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
                                 <Star size={18} className="text-purple-300 mt-0.5 group-hover:text-purple-200" />
                                 <div>
                                     <p className="font-semibold text-sm text-purple-50 group-hover:text-white">STAR Method Mastery</p>
                                     <p className="text-xs text-purple-300/80 mt-0.5">Situation, Task, Action, Result.</p>
                                 </div>
                             </a>
-                            <a href="https://www.themuse.com/advice/51-interview-questions-you-should-be-asking" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
+                            <a href="https://www.indeed.com/career-advice/interviewing/questions-to-ask-in-an-interview" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
                                 <UserCheck size={18} className="text-purple-300 mt-0.5 group-hover:text-purple-200" />
                                 <div>
                                     <p className="font-semibold text-sm text-purple-50 group-hover:text-white">Questions to Ask Them</p>
