@@ -4,6 +4,7 @@ import { Users, Briefcase, FileText, CheckCircle, XCircle, MessageSquare } from 
 import { Link } from 'react-router-dom';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
+import ApplicationProgress from '../../components/ApplicationProgress';
 import { toast } from 'react-toastify';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
@@ -273,8 +274,8 @@ const AdminDashboard = () => {
                             <thead className="bg-slate-50">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-widest">Student</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-widest">Company & Role</th>
-                                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-widest">Status</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-widest">Job Role</th>
+                                    <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-widest w-1/3">Progress</th>
                                     <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-widest">Date</th>
                                     <th className="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-widest">Notes</th>
                                 </tr>
@@ -290,15 +291,8 @@ const AdminDashboard = () => {
                                             <div className="font-bold text-slate-900">{app.job?.company || 'Unknown Company'}</div>
                                             <div className="text-xs text-slate-500">{app.job?.title || 'Unknown Role'}</div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 py-1 rounded-md text-xs font-bold 
-                                                ${app.status === 'Applied' ? 'bg-blue-100 text-blue-700' :
-                                                    app.status === 'Shortlisted' ? 'bg-amber-100 text-amber-700' :
-                                                        app.status === 'Interview Scheduled' ? 'bg-purple-100 text-purple-700' :
-                                                            app.status === 'Selected' ? 'bg-green-100 text-green-700' :
-                                                                'bg-red-100 text-red-700'}`}>
-                                                {app.status}
-                                            </span>
+                                        <td className="px-6 py-4 whitespace-nowrap min-w-[200px]">
+                                            <ApplicationProgress status={app.status} />
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                                             {new Date(app.createdAt).toLocaleDateString()}

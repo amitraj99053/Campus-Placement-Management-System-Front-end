@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { ArrowLeft, User, Mail, FileText, CheckCircle, XCircle, Clock, MessageSquare, X } from 'lucide-react';
 import { toast } from 'react-toastify';
+import ApplicationProgress from '../../components/ApplicationProgress';
 
 const JobApplications = () => {
     const { id } = useParams();
@@ -112,6 +113,9 @@ const JobApplications = () => {
                                                     <div className="text-sm font-medium text-gray-900">{app.student.name}</div>
                                                     <div className="text-sm text-gray-500 flex items-center gap-1">
                                                         <Mail size={12} /> {app.student.email}
+                                                    </div>
+                                                    <div className="mt-2 w-64">
+                                                        <ApplicationProgress status={app.status} />
                                                     </div>
                                                 </div>
                                             </div>
@@ -237,8 +241,8 @@ const JobApplications = () => {
                                 onClick={handleStatusUpdate}
                                 disabled={submitting}
                                 className={`px-5 py-2.5 text-sm font-medium text-white rounded-xl transition flex items-center justify-center min-w-[120px] ${selectedStatus === 'Rejected'
-                                        ? 'bg-red-600 hover:bg-red-700'
-                                        : 'bg-indigo-600 hover:bg-indigo-700'
+                                    ? 'bg-red-600 hover:bg-red-700'
+                                    : 'bg-indigo-600 hover:bg-indigo-700'
                                     }`}
                             >
                                 {submitting ? (

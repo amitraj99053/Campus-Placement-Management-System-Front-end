@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { Briefcase, Building, MapPin, Calendar, Clock, CheckCircle, XCircle, AlertCircle, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import ApplicationProgress from '../../components/ApplicationProgress';
 
 const MyApplications = () => {
     const [applications, setApplications] = useState([]);
@@ -99,26 +100,8 @@ const MyApplications = () => {
                                 </div>
 
                                 {/* Simple Progress Bar */}
-                                <div className="mt-6 relative pt-4">
-                                    <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden">
-                                        <div className={`h-full rounded-full ${statusConfig.bg.replace('bg-', 'bg-').replace('50', '500')}`}
-                                            style={{
-                                                width: app.status === 'Applied' ? '25%' :
-                                                    app.status === 'Shortlisted' ? '50%' :
-                                                        app.status === 'Interview Scheduled' ? '75%' :
-                                                            app.status === 'Selected' ? '100%' : '100%',
-                                                backgroundColor: app.status === 'Rejected' ? '#ef4444' : undefined
-                                            }}
-                                        ></div>
-                                    </div>
-                                    <div className="flex justify-between text-xs text-gray-400 mt-2 font-medium uppercase tracking-wide">
-                                        <span className={app.status !== 'Rejected' ? 'text-indigo-600' : ''}>Applied</span>
-                                        <span className={['Shortlisted', 'Interview Scheduled', 'Selected'].includes(app.status) ? 'text-indigo-600' : ''}>Shortlisted</span>
-                                        <span className={['Interview Scheduled', 'Selected'].includes(app.status) ? 'text-indigo-600' : ''}>Interview</span>
-                                        <span className={app.status === 'Selected' ? 'text-green-600' : app.status === 'Rejected' ? 'text-red-600' : ''}>
-                                            {app.status === 'Rejected' ? 'Rejected' : 'Hired'}
-                                        </span>
-                                    </div>
+                                <div className="mt-4">
+                                    <ApplicationProgress status={app.status} />
                                 </div>
 
                                 {/* Recruiter Feedback / Message Box */}

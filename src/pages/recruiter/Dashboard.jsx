@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Modal from '../../components/Modal';
-import { Plus, Users, Edit, Trash } from 'lucide-react';
+import { Plus, Users, Edit, Trash, MessageSquare, CheckCircle, XCircle, FileText, User, Mail, X } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import ApplicationProgress from '../../components/ApplicationProgress';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
 
@@ -19,13 +20,21 @@ const RecruiterDashboard = () => {
         type: 'Full-time', salaryRange: '', deadline: ''
     });
     const [editingJob, setEditingJob] = useState(null);
-
     const [stats, setStats] = useState(null);
+    const [applications, setApplications] = useState([]);
+
+    // Feedback Modal State
+    const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+    const [selectedApp, setSelectedApp] = useState(null);
+    const [selectedStatus, setSelectedStatus] = useState('');
+    const [feedbackText, setFeedbackText] = useState('');
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         refreshUser();
         fetchMyJobs();
         fetchStats();
+        fetchApplications();
     }, []);
 
     const fetchMyJobs = async () => {
@@ -44,6 +53,43 @@ const RecruiterDashboard = () => {
             setStats(data.recruiterStats);
         } catch (error) {
             console.error('Error fetching stats', error);
+        }
+    };
+
+    const fetchApplications = async () => {
+        try {
+            const { data } = await api.get('/applications/recruiter');
+            setApplications(data);
+        } catch (error) {
+            console.error('Error fetching applications pipeline', error);
+        }
+    };
+
+    const openFeedbackModal = (app) => {
+        setSelectedApp(app);
+        setSelectedStatus(app.status === 'Applied' ? 'Shortlisted' : app.status);
+        setFeedbackText('');
+        setIsFeedbackModalOpen(true);
+    };
+
+    const handleStatusUpdate = async () => {
+        if (!selectedApp) return;
+        setSubmitting(true);
+        try {
+            await api.put(`/applications/${selectedApp._id}`, {
+                status: selectedStatus,
+                feedback: feedbackText
+            });
+            toast.success(`Application ${selectedStatus}`);
+            setApplications(applications.map(app =>
+                app._id === selectedApp._id ? { ...app, status: selectedStatus, feedback: feedbackText } : app
+            ));
+            setIsFeedbackModalOpen(false);
+            fetchStats(); // update chart
+        } catch (error) {
+            toast.error('Failed to update status');
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -97,7 +143,7 @@ const RecruiterDashboard = () => {
             title: job.title,
             company: job.company,
             description: job.description,
-            requirements: job.requirements,
+            requirements: Array.isArray(job.requirements) ? job.requirements.join(', ') : job.requirements,
             location: job.location,
             type: job.type,
             salaryRange: job.salaryRange,
@@ -229,6 +275,86 @@ const RecruiterDashboard = () => {
                 </div>
             </div>
 
+            {/* Global Applications Pipeline Section */}
+            <div className="flex justify-between items-center mt-12 mb-2">
+                <h2 className="text-2xl font-bold text-slate-900">Pipeline Tracker</h2>
+                <p className="text-slate-500 text-sm">Action candidates across all roles seamlessly</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidate & Job</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3">Progress Tracker</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied Date</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {applications.length === 0 ? (
+                                <tr>
+                                    <td colSpan="4" className="px-6 py-12 text-center text-gray-500">
+                                        No applications received yet.
+                                    </td>
+                                </tr>
+                            ) : (
+                                applications.map((app) => (
+                                    <tr key={app._id}>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center">
+                                                <div className="h-10 w-10 flex-shrink-0 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
+                                                    <User size={20} />
+                                                </div>
+                                                <div className="ml-4">
+                                                    <div className="text-sm font-medium text-gray-900">{app.student?.name}</div>
+                                                    <div className="text-xs text-indigo-600 font-semibold">{app.job?.title}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap min-w-[200px]">
+                                            <ApplicationProgress status={app.status} />
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {new Date(app.createdAt).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div className="flex items-center gap-2">
+                                                {app.resume && (
+                                                    <a
+                                                        href={app.resume}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded transition"
+                                                        title="View Resume"
+                                                    >
+                                                        <FileText size={18} />
+                                                    </a>
+                                                )}
+                                                {app.feedback && (
+                                                    <div className="p-2 text-gray-400 hover:text-indigo-600 rounded cursor-help group relative transition">
+                                                        <MessageSquare size={18} />
+                                                        <div className="absolute bottom-full right-1/2 translate-x-1/2 mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-10 whitespace-normal">
+                                                            {app.feedback}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                <button
+                                                    onClick={() => openFeedbackModal(app)}
+                                                    className="px-3 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 hover:border-indigo-200 rounded-lg transition"
+                                                >
+                                                    Process Candidate
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => {
@@ -274,6 +400,76 @@ const RecruiterDashboard = () => {
                         {editingJob ? "Update Job" : "Post Job"}
                     </button>
                 </form>
+            </Modal>
+            <Modal
+                isOpen={isFeedbackModalOpen}
+                onClose={() => setIsFeedbackModalOpen(false)}
+                title="Update Candidate Status"
+            >
+                <div className="space-y-5">
+                    <div>
+                        <p className="text-sm font-medium text-gray-700 mb-1">Candidate</p>
+                        <p className="text-gray-900 font-semibold">{selectedApp?.student?.name}</p>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            New Selection Status
+                        </label>
+                        <select
+                            className="w-full px-4 py-2 border border-gray-200 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                            value={selectedStatus}
+                            onChange={(e) => setSelectedStatus(e.target.value)}
+                        >
+                            <option value="Applied" disabled>Applied (Initial)</option>
+                            <option value="Shortlisted">Shortlisted</option>
+                            <option value="Interview Scheduled">Interview Scheduled</option>
+                            <option value="Selected">Selected</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Message to Candidate & TPO (Optional)
+                        </label>
+                        <textarea
+                            value={feedbackText}
+                            onChange={(e) => setFeedbackText(e.target.value)}
+                            placeholder={selectedStatus === 'Rejected'
+                                ? "Thank you for your interest. Unfortunately..."
+                                : "Congratulations on moving to the next stage!..."}
+                            className="w-full px-4 py-2 border border-gray-200 rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[100px] resize-y"
+                        ></textarea>
+                        <p className="text-xs text-gray-500 mt-2">
+                            This message will be emailed directly to the student and cc'd to the Placement Office.
+                        </p>
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                        <button
+                            onClick={() => setIsFeedbackModalOpen(false)}
+                            disabled={submitting}
+                            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleStatusUpdate}
+                            disabled={submitting}
+                            className={`px-4 py-2 text-sm font-medium text-white rounded transition flex items-center justify-center min-w-[120px] ${selectedStatus === 'Rejected'
+                                ? 'bg-red-600 hover:bg-red-700'
+                                : 'bg-indigo-600 hover:bg-indigo-700'
+                                }`}
+                        >
+                            {submitting ? (
+                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                                'Update Status'
+                            )}
+                        </button>
+                    </div>
+                </div>
             </Modal>
         </div>
     );
