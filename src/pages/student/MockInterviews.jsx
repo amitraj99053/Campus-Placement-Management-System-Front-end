@@ -3,6 +3,7 @@ import api from '../../services/api';
 import Modal from '../../components/Modal';
 import { toast } from 'react-toastify';
 import { Calendar, MessageSquare, Video, BookOpen, UserCheck, Star, Clock, ExternalLink, Code, FileText, Layout, Users } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 const MockInterviews = () => {
     const [interviews, setInterviews] = useState([]);
@@ -49,6 +50,10 @@ const MockInterviews = () => {
 
     return (
         <div className="space-y-8">
+            <Helmet>
+                <title>Mock Interviews | CPMS</title>
+                <meta name="description" content="Practice mock interviews with industry experts and peers. Use the Interview Preparation Zone to ace your dream job." />
+            </Helmet>
             <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4">
                 <div>
                     <h2 className="text-3xl font-bold text-slate-900">Mock Interviews</h2>

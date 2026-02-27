@@ -23,13 +23,14 @@ export const SocketProvider = ({ children }) => {
             });
 
             newSocket.on('notification', (data) => {
-                toast.info(data.message);
-            });
-
-            newSocket.on('new-job', (data) => {
-                // Only show to students
-                if (user.role === 'student') {
+                if (data.type === 'success') {
                     toast.success(data.message);
+                } else if (data.type === 'error') {
+                    toast.error(data.message);
+                } else if (data.type === 'warning') {
+                    toast.warn(data.message);
+                } else {
+                    toast.info(data.message);
                 }
             });
 

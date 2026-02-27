@@ -1,10 +1,15 @@
 import React from 'react';
 import { CheckCircle, Zap, Shield, TrendingUp, Users, Layout, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const Services = () => {
     return (
         <div className="bg-slate-50 min-h-screen">
+            <Helmet>
+                <title>Our Services | CPMS</title>
+                <meta name="description" content="Discover comprehensive solutions for the entire recruitment lifecycle customized for Students, Recruiters, and TPOs." />
+            </Helmet>
             {/* Hero Section */}
             <div className="bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-3xl -mt-40 -mr-40"></div>

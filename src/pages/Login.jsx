@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Briefcase, Building, ScanFace, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
+import { Helmet } from 'react-helmet-async';
 import Webcam from 'react-webcam';
 import * as faceapi from 'face-api.js';
 import api from '../services/api';
@@ -117,6 +118,10 @@ const Login = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+            <Helmet>
+                <title>Login | CPMS</title>
+                <meta name="description" content="Sign in to your Campus Placement Management System account to access your dashboard, jobs, and mock interviews." />
+            </Helmet>
             {/* Background Decoration */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
                 <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>

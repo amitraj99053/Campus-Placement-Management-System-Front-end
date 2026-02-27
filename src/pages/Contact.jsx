@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, MessageSquareText, HelpCircle, ArrowRight } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -20,6 +21,11 @@ const Contact = () => {
 
     return (
         <div className="bg-slate-50 min-h-screen">
+            <Helmet>
+                <title>Contact Us | CPMS</title>
+                <meta name="description" content="Get in touch with Campus Placement Management System. Support for students, recruiters, and TPOs." />
+                <meta name="keywords" content="campus placement contact, cpms support, university placement help" />
+            </Helmet>
             {/* Hero Section */}
             <div className="bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-3xl -mt-40 -mr-40 pointer-events-none"></div>
@@ -94,7 +100,7 @@ const Contact = () => {
                             <p className="text-indigo-100 mb-6 relative z-10 text-sm leading-relaxed">
                                 Browse our comprehensive frequently asked questions section to find quick solutions to common issues.
                             </p>
-                            <Link to="/faq" className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-5 py-2.5 rounded-xl font-semibold transition backdrop-blur-sm relative z-10 text-sm">
+                            <Link to="/#faq" className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-5 py-2.5 rounded-xl font-semibold transition backdrop-blur-sm relative z-10 text-sm">
                                 Visit FAQ <ArrowRight size={16} />
                             </Link>
                         </div>

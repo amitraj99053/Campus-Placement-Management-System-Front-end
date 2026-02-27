@@ -7,6 +7,7 @@ import Webcam from 'react-webcam';
 import * as faceapi from 'face-api.js';
 import api from '../services/api';
 import { toast } from 'react-toastify';
+import { Helmet } from 'react-helmet-async';
 
 const Register = () => {
     const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'student' });
@@ -168,6 +169,10 @@ const Register = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+            <Helmet>
+                <title>Register | CPMS</title>
+                <meta name="description" content="Create a free CPMS account to build your profile, post jobs, or manage campus recruiting." />
+            </Helmet>
             {/* Background Decoration */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
                 <div className="absolute top-[10%] -left-[10%] w-[40%] h-[40%] bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>

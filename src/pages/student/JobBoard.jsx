@@ -3,8 +3,11 @@ import api from '../../services/api';
 import { Briefcase, MapPin, DollarSign, Calendar, Search, Filter, Building, Clock, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { Helmet } from 'react-helmet-async';
+import { useAuth } from '../../context/AuthContext';
 
 const JobBoard = () => {
+    const { user } = useAuth();
     const [jobs, setJobs] = useState([]);
     const [filteredJobs, setFilteredJobs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -52,7 +55,14 @@ const JobBoard = () => {
         try {
             const response = await api.post('/applications', { jobId });
             console.log("Apply successful:", response.data);
-            toast.success('Application submitted successfully!');
+            toast.success('Congratulations! You have successfully applied for this job.');
+
+            // Update local state to reflect the new applicant
+            const updateJobs = prevJobs => prevJobs.map(j =>
+                j._id === jobId ? { ...j, applicants: [...(j.applicants || []), user?._id] } : j
+            );
+            setJobs(updateJobs);
+            setFilteredJobs(updateJobs);
         } catch (error) {
             console.error("Apply error:", error);
             toast.error(error.response?.data?.message || 'Failed to apply');
@@ -65,6 +75,10 @@ const JobBoard = () => {
 
     return (
         <div className="space-y-8 relative">
+            <Helmet>
+                <title>Job Openings | CPMS</title>
+                <meta name="description" content="Discover and apply to your dream companies. Find full-time, part-time, and internship opportunities for students." />
+            </Helmet>
             <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4">
                 <div>
                     <h2 className="text-3xl font-bold text-slate-900">Job Openings</h2>
@@ -171,21 +185,30 @@ const JobBoard = () => {
                                 >
                                     View Details
                                 </Link>
-                                <button
-                                    onClick={() => handleApply(job._id)}
-                                    disabled={applyingJobId === job._id}
-                                    className={`flex-1 px-4 py-2.5 rounded-xl text-white text-sm font-semibold shadow-lg shadow-indigo-200 transition-all active:scale-95 ${applyingJobId === job._id
-                                        ? 'bg-indigo-400 cursor-wait'
-                                        : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-300'
-                                        }`}
-                                >
-                                    {applyingJobId === job._id ? (
-                                        <span className="flex items-center justify-center gap-2">
-                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                            Applying
-                                        </span>
-                                    ) : 'Apply Now'}
-                                </button>
+                                {job.applicants?.includes(user?._id) ? (
+                                    <button
+                                        disabled
+                                        className="flex-1 px-4 py-2.5 rounded-xl text-white text-sm font-semibold shadow-lg shadow-indigo-200 transition-all bg-emerald-500 cursor-not-allowed flex items-center justify-center gap-2"
+                                    >
+                                        <CheckCircle size={16} /> Applied
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => handleApply(job._id)}
+                                        disabled={applyingJobId === job._id}
+                                        className={`flex-1 px-4 py-2.5 rounded-xl text-white text-sm font-semibold shadow-lg shadow-indigo-200 transition-all active:scale-95 ${applyingJobId === job._id
+                                            ? 'bg-indigo-400 cursor-wait'
+                                            : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-300'
+                                            }`}
+                                    >
+                                        {applyingJobId === job._id ? (
+                                            <span className="flex items-center justify-center gap-2">
+                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                Applying
+                                            </span>
+                                        ) : 'Apply Now'}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))

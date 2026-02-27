@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
     ArrowRight,
     CheckCircle,
@@ -19,6 +19,21 @@ import {
 import { Helmet } from 'react-helmet-async';
 
 const Home = () => {
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.hash) {
+            const elem = document.getElementById(location.hash.slice(1));
+            if (elem) {
+                setTimeout(() => {
+                    elem.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+            }
+        } else {
+            window.scrollTo(0, 0);
+        }
+    }, [location]);
+
     return (
         <div className="space-y-0 pb-0 bg-slate-50">
             <Helmet>
@@ -366,7 +381,7 @@ const Home = () => {
             </section>
 
             {/* FAQ */}
-            <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+            <section id="faq" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl font-extrabold text-slate-900 sm:text-4xl">
                         Frequently Asked Questions

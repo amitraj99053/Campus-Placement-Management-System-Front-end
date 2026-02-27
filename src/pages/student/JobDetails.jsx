@@ -3,8 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { Briefcase, MapPin, DollarSign, Calendar, Building, Clock, ArrowLeft, CheckCircle, Info } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { useAuth } from '../../context/AuthContext';
 
 const JobDetails = () => {
+    const { user } = useAuth();
     const { id } = useParams();
     const navigate = useNavigate();
     const [job, setJob] = useState(null);
@@ -33,7 +35,13 @@ const JobDetails = () => {
         try {
             const response = await api.post('/applications', { jobId: id });
             console.log("Apply successful:", response.data);
-            toast.success('Application submitted successfully!');
+            toast.success('Congratulations! You have successfully applied for this job.');
+
+            // Update local state to show as applied
+            setJob(prev => ({
+                ...prev,
+                applicants: [...(prev.applicants || []), user?._id]
+            }));
         } catch (error) {
             console.error("Apply error:", error);
             toast.error(error.response?.data?.message || 'Failed to apply');
@@ -136,21 +144,30 @@ const JobDetails = () => {
                                 <p className="text-sm text-slate-500 mb-6 leading-relaxed">
                                     Ensure your profile is complete and your resume is updated before submitting.
                                 </p>
-                                <button
-                                    onClick={handleApply}
-                                    disabled={applying}
-                                    className={`w-full py-4 rounded-xl text-white font-bold shadow-xl shadow-indigo-200 transition-all active:scale-95 ${applying
-                                        ? 'bg-indigo-400 cursor-wait'
-                                        : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-300'
-                                        }`}
-                                >
-                                    {applying ? (
-                                        <span className="flex items-center justify-center gap-2">
-                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                            Submitting...
-                                        </span>
-                                    ) : 'Apply Now'}
-                                </button>
+                                {job.applicants?.includes(user?._id) ? (
+                                    <button
+                                        disabled
+                                        className="w-full py-4 rounded-xl text-white font-bold shadow-xl shadow-emerald-200 transition-all bg-emerald-500 cursor-not-allowed flex items-center justify-center gap-2"
+                                    >
+                                        <CheckCircle size={20} /> Applied
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={handleApply}
+                                        disabled={applying}
+                                        className={`w-full py-4 rounded-xl text-white font-bold shadow-xl shadow-indigo-200 transition-all active:scale-95 ${applying
+                                            ? 'bg-indigo-400 cursor-wait'
+                                            : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-300'
+                                            }`}
+                                    >
+                                        {applying ? (
+                                            <span className="flex items-center justify-center gap-2">
+                                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                Submitting...
+                                            </span>
+                                        ) : 'Apply Now'}
+                                    </button>
+                                )}
                             </div>
 
                             <div className="bg-indigo-50 rounded-2xl p-6 border border-indigo-100">
