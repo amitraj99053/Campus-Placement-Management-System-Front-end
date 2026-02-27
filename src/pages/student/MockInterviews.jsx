@@ -239,7 +239,7 @@ const MockInterviews = () => {
                             <a href="https://leetcode.com/studyplan/top-interview-150/" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
                                 <FileText size={18} className="text-indigo-300 mt-0.5 group-hover:text-indigo-200" />
                                 <div>
-                                    <p className="font-semibold text-sm text-indigo-50 group-hover:text-white">Top Interview 150</p>
+                                    <p className="font-semibold text-sm text-indigo-50 group-hover:text-white">Top DSA 150</p>
                                     <p className="text-xs text-indigo-300/80 mt-0.5">Must-do algorithmic patterns.</p>
                                 </div>
                             </a>
