@@ -267,11 +267,11 @@ const MockInterviews = () => {
                         </div>
                         <h4 className="font-bold text-xl mb-4 text-white">HR & Behavioral</h4>
                         <div className="space-y-3">
-                            <a href="https://www.coursera.org/articles/how-to-answer-tell-me-about-yourself" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
+                            <a href="https://www.themuse.com/advice/tell-me-about-yourself-interview-question-answer-examples" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
                                 <MessageSquare size={18} className="text-purple-300 mt-0.5 group-hover:text-purple-200" />
                                 <div>
                                     <p className="font-semibold text-sm text-purple-50 group-hover:text-white">"Tell me about yourself"</p>
-                                    <p className="text-xs text-purple-300/80 mt-0.5">Coursera's official introduction guide.</p>
+                                    <p className="text-xs text-purple-300/80 mt-0.5">The Muse's formula & examples.</p>
                                 </div>
                             </a>
                             <a href="https://www.indeed.com/career-advice/interviewing/how-to-use-the-star-interview-response-technique" target="_blank" rel="noopener noreferrer" className="group flex items-start gap-3 p-3 rounded-xl hover:bg-white/10 transition">
