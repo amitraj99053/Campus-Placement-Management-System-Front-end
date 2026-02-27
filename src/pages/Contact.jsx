@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, MessageSquareT, HelpCircle, ArrowRight } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, MessageSquareText, HelpCircle, ArrowRight } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 const Contact = () => {
@@ -104,7 +104,7 @@ const Contact = () => {
                         <div className="bg-white rounded-3xl p-10 lg:p-12 shadow-xl shadow-slate-200/50 border border-slate-100 h-full">
                             <div className="flex items-center gap-3 mb-8">
                                 <div className="p-3 bg-slate-100 rounded-xl text-slate-700">
-                                    <MessageSquareT size={24} />
+                                    <MessageSquareText size={24} />
                                 </div>
                                 <h3 className="text-3xl font-extrabold text-slate-900">Send a Message</h3>
                             </div>
