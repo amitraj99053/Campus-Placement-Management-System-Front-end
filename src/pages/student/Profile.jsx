@@ -218,6 +218,18 @@ const Profile = () => {
                         <User size={40} />
                     </div>
                     <h2 className="text-xl font-bold text-slate-900">Student Profile</h2>
+                    <div className="mt-2 flex items-center justify-center gap-2">
+                        {profile.isVerified ? (
+                            <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <Award size={12} /> Verified
+                            </span>
+                        ) : (
+                            <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <AlertCircle size={12} /> Pending Verification
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-slate-600 font-medium mt-3">{profile.university || 'No University Set'}</p>
                     <p className="text-slate-500 text-sm mt-1">{profile.branch || 'Branch N/A'} • {profile.batch || 'Batch N/A'}</p>
 
                     <div className="mt-6">

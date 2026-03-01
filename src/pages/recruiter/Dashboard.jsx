@@ -17,7 +17,7 @@ const RecruiterDashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newJob, setNewJob] = useState({
         title: '', company: '', description: '', requirements: '', location: '',
-        type: 'Full-time', salaryRange: '', deadline: ''
+        type: 'Full-time', salaryRange: '', deadline: '', university: user?.university || ''
     });
     const [editingJob, setEditingJob] = useState(null);
     const [stats, setStats] = useState(null);
@@ -132,7 +132,7 @@ const RecruiterDashboard = () => {
     const resetForm = () => {
         setNewJob({
             title: '', company: '', description: '', requirements: '', location: '',
-            type: 'Full-time', salaryRange: '', deadline: ''
+            type: 'Full-time', salaryRange: '', deadline: '', university: user?.university || ''
         });
         setEditingJob(null);
     };
@@ -147,7 +147,8 @@ const RecruiterDashboard = () => {
             location: job.location,
             type: job.type,
             salaryRange: job.salaryRange,
-            deadline: job.deadline.split('T')[0] // Format for date input
+            deadline: job.deadline.split('T')[0], // Format for date input
+            university: job.university || user?.university || ''
         });
         setIsModalOpen(true);
     };
@@ -396,6 +397,14 @@ const RecruiterDashboard = () => {
                     <input type="date" className="w-full p-2 border rounded" required
                         value={newJob.deadline}
                         onChange={e => setNewJob({ ...newJob, deadline: e.target.value })} />
+
+                    <div>
+                        <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Target University (Auto-filled)</label>
+                        <input type="text" className="w-full p-2 border rounded bg-gray-50" readOnly
+                            value={newJob.university} />
+                        <p className="text-[10px] text-gray-400 mt-1 italic">Jobs are automatically restricted to your registered university.</p>
+                    </div>
+
                     <button type="submit" className="w-full bg-indigo-600 text-white py-2 rounded">
                         {editingJob ? "Update Job" : "Post Job"}
                     </button>

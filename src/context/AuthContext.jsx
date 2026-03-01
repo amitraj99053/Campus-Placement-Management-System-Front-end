@@ -49,8 +49,8 @@ export const AuthProvider = ({ children }) => {
         completeLogin(data);
     };
 
-    const register = async (name, email, password, role) => {
-        const { data } = await api.post('/users', { name, email, password, role });
+    const register = async (name, email, password, role, university) => {
+        const { data } = await api.post('/users', { name, email, password, role, university });
         completeLogin(data, '/dashboard');
     };
 

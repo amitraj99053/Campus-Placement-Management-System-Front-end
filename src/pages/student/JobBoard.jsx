@@ -159,6 +159,12 @@ const JobBoard = () => {
                                 </span>
                             </div>
 
+                            {job.university && (
+                                <div className="mb-4 flex items-center gap-2 text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-lg w-fit">
+                                    <Building size={14} /> {job.university} Only
+                                </div>
+                            )}
+
                             <div className="space-y-3 mb-6 relative z-10">
                                 <div className="flex items-center text-sm text-slate-600 bg-slate-50 p-2 rounded-lg">
                                     <MapPin size={16} className="mr-3 text-indigo-400" />
@@ -191,6 +197,14 @@ const JobBoard = () => {
                                         className="flex-1 px-4 py-2.5 rounded-xl text-white text-sm font-semibold shadow-lg shadow-indigo-200 transition-all bg-emerald-500 cursor-not-allowed flex items-center justify-center gap-2"
                                     >
                                         <CheckCircle size={16} /> Applied
+                                    </button>
+                                ) : job.university && user?.university && job.university !== user.university ? (
+                                    <button
+                                        disabled
+                                        className="flex-1 px-4 py-2.5 rounded-xl text-gray-400 text-sm font-semibold shadow-inner transition-all bg-gray-100 cursor-not-allowed flex items-center justify-center gap-2"
+                                        title={`Only students from ${job.university} can apply`}
+                                    >
+                                        <AlertCircle size={16} /> Restricted
                                     </button>
                                 ) : (
                                     <button

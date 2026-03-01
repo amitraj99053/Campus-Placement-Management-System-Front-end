@@ -10,7 +10,7 @@ import { toast } from 'react-toastify';
 import { Helmet } from 'react-helmet-async';
 
 const Register = () => {
-    const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'student' });
+    const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'student', university: '' });
     const { register, googleLogin } = useAuth();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -45,7 +45,7 @@ const Register = () => {
         setError('');
         setLoading(true);
         try {
-            await register(formData.name, formData.email, formData.password, formData.role);
+            await register(formData.name, formData.email, formData.password, formData.role, formData.university);
             toast.success("Account created! Set up Face Login now.");
             setStep(2); // Move to Face ID step
         } catch (err) {
@@ -270,7 +270,26 @@ const Register = () => {
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+                            <label htmlFor="university" className="block text-sm font-medium text-gray-700">University / College</label>
+                            <div className="mt-1 relative rounded-md shadow-sm">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Building className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                </div>
+                                <input
+                                    id="university"
+                                    name="university"
+                                    type="text"
+                                    required
+                                    className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-lg py-3"
+                                    placeholder="e.g. Stanford University"
+                                    value={formData.university}
+                                    onChange={(e) => setFormData({ ...formData, university: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="password" title="Password" className="block text-sm font-medium text-gray-700">Password</label>
                             <div className="mt-1 relative rounded-md shadow-sm">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
