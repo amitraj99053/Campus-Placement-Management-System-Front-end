@@ -176,7 +176,7 @@ const JobBoard = () => {
                                 </div>
                                 <div className="flex items-center text-sm text-slate-500 pl-2">
                                     <Clock size={14} className="mr-3 text-orange-400" />
-                                    <span>Expires: {new Date(job.deadline).toLocaleDateString()}</span>
+                                    <span>Expires: {job.deadline ? new Date(job.deadline).toLocaleDateString() : 'Not specified'}</span>
                                 </div>
                             </div>
 

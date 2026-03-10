@@ -6,6 +6,7 @@ import { Plus, Users, Edit, Trash, MessageSquare, CheckCircle, XCircle, FileText
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import ApplicationProgress from '../../components/ApplicationProgress';
+import FaceIdSetup from '../../components/FaceIdSetup';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
 
@@ -354,6 +355,11 @@ const RecruiterDashboard = () => {
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            {/* Face ID Setup Section */}
+            <div className="mt-8">
+                <FaceIdSetup />
             </div>
 
             <Modal

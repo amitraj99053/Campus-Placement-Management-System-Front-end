@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, User, Menu, X, Briefcase, FileText, Calendar, BarChart } from 'lucide-react';
@@ -10,6 +10,13 @@ const Layout = ({ children }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    // Scroll to top on route change
+    useEffect(() => {
+        if (!location.hash) {
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+    }, [location.pathname, location.hash]);
 
     // Determine dashboard link based on role
     const getDashboardLink = () => {

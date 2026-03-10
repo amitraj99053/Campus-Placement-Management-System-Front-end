@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
 import ApplicationProgress from '../../components/ApplicationProgress';
+import FaceIdSetup from '../../components/FaceIdSetup';
 import { toast } from 'react-toastify';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
@@ -316,6 +317,11 @@ const AdminDashboard = () => {
                         </table>
                     </div>
                 )}
+            </div>
+
+            {/* Face ID Setup Section */}
+            <div className="mt-8">
+                <FaceIdSetup />
             </div>
         </div>
     );

@@ -58,6 +58,11 @@ export const AuthProvider = ({ children }) => {
         completeLogin(data);
     };
 
+    const faceLogin = async (email, descriptor) => {
+        const { data } = await api.post('/users/face-login', { email, descriptor });
+        completeLogin(data);
+    };
+
     const logout = async () => {
         try {
             await api.post('/users/logout');
@@ -71,7 +76,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, refreshUser, login, register, googleLogin, logout, loading }}>
+        <AuthContext.Provider value={{ user, refreshUser, login, register, googleLogin, faceLogin, logout, loading }}>
             {!loading && children}
         </AuthContext.Provider>
     );

@@ -103,7 +103,7 @@ const JobDetails = () => {
                         <div className="space-y-1">
                             <p className="text-indigo-200 text-xs font-bold uppercase tracking-widest">Deadline</p>
                             <div className="flex items-center gap-2 font-semibold">
-                                <Calendar size={16} /> {new Date(job.deadline).toLocaleDateString()}
+                                <Calendar size={16} /> {job.deadline ? new Date(job.deadline).toLocaleDateString() : 'Not specified'}
                             </div>
                         </div>
                         <div className="space-y-1">

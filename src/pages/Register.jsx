@@ -316,26 +316,28 @@ const Register = () => {
                         </button>
                     </form>
 
-                    <div className="mt-8">
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-300" />
+                    {import.meta.env.VITE_GOOGLE_CLIENT_ID && import.meta.env.VITE_GOOGLE_CLIENT_ID !== 'YOUR_GOOGLE_CLIENT_ID_HERE' && (
+                        <div className="mt-8">
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-gray-300" />
+                                </div>
+                                <div className="relative flex justify-center text-sm">
+                                    <span className="px-2 bg-white/80 text-gray-500">Or continue with</span>
+                                </div>
                             </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-2 bg-white/80 text-gray-500">Or continue with</span>
-                            </div>
-                        </div>
 
-                        <div className="mt-6 flex justify-center">
-                            <GoogleLogin
-                                onSuccess={handleGoogleSuccess}
-                                onError={() => {
-                                    console.log('Login Failed');
-                                    toast.error("Google Signup Failed");
-                                }}
-                            />
+                            <div className="mt-6 flex justify-center">
+                                <GoogleLogin
+                                    onSuccess={handleGoogleSuccess}
+                                    onError={() => {
+                                        console.log('Login Failed');
+                                        toast.error("Google Signup Failed");
+                                    }}
+                                />
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     <div className="mt-6 text-center">
                         <p className="text-sm text-gray-600">

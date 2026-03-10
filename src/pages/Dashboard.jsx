@@ -25,15 +25,17 @@ const Dashboard = () => {
 
     const fetchDashboardData = async () => {
         try {
+            const appsPromise = api.get('/applications/my').catch(() => ({ data: [] }));
+            const profilePromise = api.get('/student/profile').catch(() => ({ data: {} }));
+            const interviewsPromise = api.get('/mock-interviews/my').catch(() => ({ data: [] }));
+
             const [applicationsRes, profileRes, interviewsRes] = await Promise.all([
-                api.get('/applications/my'),
-                api.get('/student/profile'),
-                api.get('/mock-interviews/my')
+                appsPromise, profilePromise, interviewsPromise
             ]);
 
-            const apps = applicationsRes.data;
-            const profile = profileRes.data;
-            const interviews = interviewsRes.data;
+            const apps = applicationsRes.data || [];
+            const profile = profileRes.data || {};
+            const interviews = interviewsRes.data || [];
 
             // Calculate Profile Completion
             let filledFields = 0;
