@@ -116,7 +116,9 @@ const AdminDashboard = () => {
     return (
         <div className="space-y-8 p-4 md:p-0">
             <div className="flex justify-between items-center">
-                <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Admin Analytics Overview</h2>
+                <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                    {user?.role === 'admin' ? 'Global Analytics Overview' : `Campus Analytics for ${user?.university || 'Your College'}`}
+                </h2>
                 <div className="text-sm text-slate-500">Live system updates</div>
             </div>
 
@@ -211,7 +213,7 @@ const AdminDashboard = () => {
                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                     <h3 className="font-bold text-xl mb-6 text-slate-800 flex items-center gap-2">
                         <Users className="text-orange-500" />
-                        Pending Member Approvals
+                        Pending Approvals {user?.role !== 'admin' && user?.university && `(${user.university})`}
                         <span className="ml-auto bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">{unverifiedUsers.length}</span>
                     </h3>
 

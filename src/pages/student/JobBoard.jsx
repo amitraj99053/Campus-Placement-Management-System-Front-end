@@ -81,7 +81,9 @@ const JobBoard = () => {
             </Helmet>
             <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-slate-900">Job Openings</h2>
+                    <h2 className="text-3xl font-bold text-slate-900">
+                        {user?.role === 'admin' ? 'All Job Openings' : `Job Openings for ${user?.university || 'Your College'}`}
+                    </h2>
                     <p className="text-slate-500 mt-1">Discover and apply to your dream companies.</p>
                 </div>
                 <div className="text-sm text-slate-400">

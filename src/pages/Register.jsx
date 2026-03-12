@@ -286,6 +286,7 @@ const Register = () => {
                                     onChange={(e) => setFormData({ ...formData, university: e.target.value })}
                                 />
                             </div>
+                            <p className="mt-2 text-xs text-gray-500 italic">Please ensure exact spelling to correctly link with your campus partners.</p>
                         </div>
 
                         <div>
