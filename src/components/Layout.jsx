@@ -61,7 +61,7 @@ const Layout = ({ children }) => {
                     <div className="flex justify-between h-16 items-center">
                         <div className="flex-shrink-0 cursor-pointer flex items-center gap-2" onClick={() => navigate('/')}>
                             <Briefcase className="text-indigo-600 h-8 w-8" />
-                            <h1 className="text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hidden sm:block">CPMS</h1>
+                            <h1 className="text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">CPMS</h1>
                         </div>
 
                         {/* Desktop Navigation */}

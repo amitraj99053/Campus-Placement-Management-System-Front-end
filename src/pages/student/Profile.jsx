@@ -201,7 +201,7 @@ const Profile = () => {
                 <form onSubmit={handleSubmit} className="space-y-8">
 
                     {/* Academic Section */}
-                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                    <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
                         <h2 className="text-xl font-bold mb-6 text-slate-900 flex items-center gap-2">
                             <GraduationCap className="text-indigo-600" size={24} /> Academic Details
                         </h2>
@@ -258,7 +258,7 @@ const Profile = () => {
                     </div>
 
                     {/* Skills Section */}
-                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                    <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
                         <h2 className="text-xl font-bold mb-6 text-slate-900 flex items-center gap-2">
                             <Book className="text-indigo-600" size={24} /> Skills & Expertise
                         </h2>
@@ -276,7 +276,7 @@ const Profile = () => {
                     </div>
 
                     {/* Experience Section */}
-                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                    <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                                 <Briefcase className="text-indigo-600" size={24} /> Experience
@@ -360,7 +360,7 @@ const Profile = () => {
                     </div>
 
                     {/* Certifications Section */}
-                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                    <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                                 <Award className="text-indigo-600" size={24} /> Certifications
@@ -436,7 +436,7 @@ const Profile = () => {
                     </div>
 
                     {/* Social Links Section */}
-                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                    <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
                         <h2 className="text-xl font-bold mb-6 text-slate-900 flex items-center gap-2">
                             <Globe className="text-indigo-600" size={24} /> Professional Links
                         </h2>
@@ -487,7 +487,7 @@ const Profile = () => {
                     <FaceIdSetup />
 
                     {/* Resume Upload */}
-                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                    <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
                         <h2 className="text-xl font-bold mb-6 text-slate-900 flex items-center gap-2">
                             <UploadCloud className="text-indigo-600" size={24} /> Resume Upload
                         </h2>
@@ -538,7 +538,7 @@ const Profile = () => {
                     <div className="flex justify-end pt-6">
                         <button
                             type="submit"
-                            className="w-full md:w-auto flex items-center justify-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-xl hover:bg-slate-800 hover:-translate-y-1 transition font-bold shadow-xl text-lg"
+                            className="w-full sm:w-auto flex items-center justify-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-xl hover:bg-slate-800 hover:-translate-y-1 transition font-bold shadow-xl text-lg"
                         >
                             <Save size={20} /> Save All Changes
                         </button>

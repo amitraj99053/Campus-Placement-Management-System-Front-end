@@ -11,10 +11,20 @@ import { Helmet } from 'react-helmet-async';
 
 const Register = () => {
     const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'student', university: '' });
-    const { register, googleLogin } = useAuth();
+    const { user, register, googleLogin } = useAuth();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+
+    // Redirect if already logged in
+    React.useEffect(() => {
+        if (user) {
+            const dashboardLink = user.role === 'recruiter' ? '/recruiter/dashboard' : 
+                                 (user.role === 'admin' || user.role === 'tpo') ? '/admin/dashboard' : 
+                                 '/dashboard';
+            navigate(dashboardLink);
+        }
+    }, [user, navigate]);
 
     // Multi-step state
     const [step, setStep] = useState(1); // 1: Details, 2: Face ID
@@ -156,7 +166,7 @@ const Register = () => {
                             </button>
                             <button
                                 onClick={handleSkip}
-                                className="w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all API"
+                                className="w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all"
                             >
                                 Skip for Now
                             </button>
@@ -194,7 +204,7 @@ const Register = () => {
                     {/* Role Selection */}
                     <div className="mb-6">
                         <label className="block text-sm font-medium text-gray-700 mb-3 text-center">I am registering as a...</label>
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             {roles.map((type) => {
                                 const Icon = type.icon;
                                 const isSelected = formData.role === type.id;

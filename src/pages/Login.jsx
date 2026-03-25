@@ -13,12 +13,22 @@ const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [selectedRole, setSelectedRole] = useState('student');
     const [loginMethod, setLoginMethod] = useState('email'); // 'email' or 'face'
-    const { login, googleLogin, faceLogin } = useAuth();
+    const { user, login, googleLogin, faceLogin } = useAuth();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [modelsLoaded, setModelsLoaded] = useState(false);
     const webcamRef = useRef(null);
     const navigate = useNavigate();
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (user) {
+            const dashboardLink = user.role === 'recruiter' ? '/recruiter/dashboard' : 
+                                 (user.role === 'admin' || user.role === 'tpo') ? '/admin/dashboard' : 
+                                 '/dashboard';
+            navigate(dashboardLink);
+        }
+    }, [user, navigate]);
 
     useEffect(() => {
         const loadModels = async () => {

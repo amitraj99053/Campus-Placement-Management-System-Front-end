@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import { Users, Briefcase, FileText, CheckCircle, XCircle, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -11,6 +12,7 @@ import { toast } from 'react-toastify';
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
 const AdminDashboard = () => {
+    const { user } = useAuth();
     const [stats, setStats] = useState(null);
     const [unverifiedUsers, setUnverifiedUsers] = useState([]);
     const [allApplications, setAllApplications] = useState([]);
@@ -27,9 +29,9 @@ const AdminDashboard = () => {
                 api.get('/users/unverified'),
                 api.get('/applications/all')
             ]);
-            setStats(statsRes.data);
-            setUnverifiedUsers(usersRes.data);
-            setAllApplications(appsRes.data);
+            setStats(statsRes.data || {});
+            setUnverifiedUsers(usersRes.data || []);
+            setAllApplications(appsRes.data || []);
         } catch (error) {
             console.error(error);
         } finally {

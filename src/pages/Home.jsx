@@ -57,7 +57,7 @@ const Home = () => {
                         </span>
                         #1 Campus Placement Platform
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight">
+                    <h1 className="text-4xl md:text-7xl font-extrabold text-slate-900 tracking-tight mb-8 leading-tight">
                         The Future of <br className="hidden md:block" />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Campus Recruitment</span>
                     </h1>
