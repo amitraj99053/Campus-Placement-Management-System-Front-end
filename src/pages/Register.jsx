@@ -55,7 +55,7 @@ const Register = () => {
         setError('');
         setLoading(true);
         try {
-            await register(formData.name, formData.email, formData.password, formData.role, formData.university);
+            await register(formData.name, formData.email, formData.password, formData.role, formData.university.trim());
             toast.success("Account created! Set up Face Login now.");
             setStep(2); // Move to Face ID step
         } catch (err) {
