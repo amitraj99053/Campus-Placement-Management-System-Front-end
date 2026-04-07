@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, memo, useRef, useEffect } from 'react';
+import { useState, useCallback, useMemo, memo, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Briefcase, Building, Mail, Lock, ArrowRight, Loader2, ScanFace, CheckCircle2 } from 'lucide-react';
@@ -88,7 +88,7 @@ const Register = () => {
     const webcamRef = useRef(null);
 
     // Redirect if already logged in
-    useEffect(() => {
+    React.useEffect(() => {
         if (user) {
             const dashboardLink = user.role === 'recruiter' ? '/recruiter/dashboard' : 
                                  (user.role === 'admin' || user.role === 'tpo') ? '/admin/dashboard' : 
@@ -98,7 +98,7 @@ const Register = () => {
     }, [user, navigate]);
 
     // Load face-api models only on step 2
-    useEffect(() => {
+    React.useEffect(() => {
         if (step !== 2) return;
         
         const loadModels = async () => {
@@ -200,35 +200,35 @@ const Register = () => {
     ], []);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-indigo-100 flex items-center justify-center py-8 sm:py-12 md:py-16">
+        <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-indigo-100 py-8 sm:py-12 md:py-16">
             <Helmet>
                 <title>Register | CPMS</title>
                 <meta name="description" content="Create a free CPMS account." />
             </Helmet>
 
-            <div className="w-full max-w-md px-4">
+            <div className="max-w-md mx-auto px-4">
                 {step === 1 ? (
-                    <div>
+                    <motion.div initial={FADE_IN} animate={FADE_IN_VISIBLE} transition={{ duration: 0.4 }}>
                         {/* Header */}
                         <div className="text-center mb-8">
                             <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">
                                 Join <span className="text-indigo-600">CPMS</span>
                             </h1>
-                            <p className="text-slate-600 text-sm">Create your account</p>
+                            <p className="text-slate-600 text-sm">Create account in 2 minutes</p>
                         </div>
 
                         {/* Form Card */}
                         <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 space-y-4">
                             {error && (
                                 <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
-                                    <p className="text-sm text-red-700 font-medium">{error}</p>
+                                    <p className="text-sm text-red-700">{error}</p>
                                 </div>
                             )}
 
                             {/* Role Selection */}
                             <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-3">I'm registering as</label>
-                                <div className="grid grid-cols-3 gap-2">
+                                <label className="block text-sm font-semibold text-slate-700 mb-3">Role</label>
+                                <div className="grid grid-cols-3 gap-3">
                                     {roles.map((role) => {
                                         const Icon = role.icon;
                                         const isSelected = formData.role === role.id;
@@ -236,17 +236,14 @@ const Register = () => {
                                             <button
                                                 key={role.id}
                                                 onClick={() => setFormData({ ...formData, role: role.id })}
-                                                type="button"
                                                 className={`p-3 rounded-lg border-2 transition-all text-center ${
                                                     isSelected
-                                                        ? 'border-indigo-600 bg-indigo-50 shadow-md'
+                                                        ? 'border-indigo-600 bg-indigo-50'
                                                         : 'border-slate-200 hover:border-indigo-300 bg-white'
                                                 }`}
                                             >
-                                                <Icon className={`w-5 h-5 mx-auto mb-1 ${
-                                                    isSelected ? 'text-indigo-600' : 'text-slate-400'
-                                                }`} />
-                                                <div className="text-xs font-bold">{role.label}</div>
+                                                <Icon className={`w-5 h-5 mx-auto mb-1 ${isSelected ? 'text-indigo-600' : 'text-slate-400'}`} />
+                                                <div className="text-xs font-semibold">{role.label}</div>
                                             </button>
                                         );
                                     })}
@@ -263,7 +260,7 @@ const Register = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full mt-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg transition-shadow disabled:opacity-60 flex items-center justify-center gap-2"
+                                    className="w-full mt-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg transition-shadow disabled:opacity-75 flex items-center justify-center gap-2"
                                 >
                                     {loading ? <Loader2 className="animate-spin" size={18} /> : <>Continue <ArrowRight size={18} /></>}
                                 </button>
@@ -296,9 +293,9 @@ const Register = () => {
                                 </p>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
                 ) : (
-                    <div>
+                    <motion.div initial={FADE_IN} animate={FADE_IN_VISIBLE} transition={{ duration: 0.4 }}>
                         {/* Face Registration Step */}
                         <div className="text-center mb-8">
                             <h1 className="text-3xl font-bold text-slate-900 mb-2">Almost Done!</h1>
@@ -306,7 +303,7 @@ const Register = () => {
                         </div>
 
                         <div className="bg-white rounded-xl shadow-lg p-6 space-y-4">
-                            <div className="bg-slate-900 rounded-lg overflow-hidden h-64 relative border-2 border-slate-700">
+                            <div className="bg-slate-900 rounded-lg overflow-hidden h-64 relative">
                                 {modelsLoaded ? (
                                     <Webcam
                                         audio={false}
@@ -315,9 +312,9 @@ const Register = () => {
                                         ref={webcamRef}
                                     />
                                 ) : (
-                                    <div className="flex flex-col items-center justify-center h-full text-white">
-                                        <Loader2 className="animate-spin mb-2" size={24} />
-                                        <p className="text-sm">Loading camera...</p>
+                                    <div className="flex items-center justify-center h-full text-white">
+                                        <Loader2 className="animate-spin mr-2" />
+                                        Loading...
                                     </div>
                                 )}
                             </div>
@@ -326,8 +323,7 @@ const Register = () => {
                                 <button
                                     onClick={handleRegisterFace}
                                     disabled={faceProcessing || !modelsLoaded}
-                                    type="button"
-                                    className="py-3 px-4 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                                    className="py-3 px-4 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-75 flex items-center justify-center gap-2"
                                 >
                                     {faceProcessing ? <Loader2 className="animate-spin" size={18} /> : <ScanFace size={18} />}
                                     {faceProcessing ? 'Processing...' : 'Capture'}
@@ -335,18 +331,17 @@ const Register = () => {
 
                                 <button
                                     onClick={handleSkip}
-                                    type="button"
                                     className="py-3 px-4 border-2 border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-colors"
                                 >
                                     Skip
                                 </button>
                             </div>
 
-                            <p className="text-xs text-slate-600 text-center bg-blue-50 p-3 rounded border border-blue-200">
+                            <p className="text-xs text-slate-500 text-center bg-blue-50 p-3 rounded">
                                 💡 Face recognition helps you login faster and more securely
                             </p>
                         </div>
-                    </div>
+                    </motion.div>
                 )}
             </div>
         </div>

@@ -1,5 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import { SocketProvider } from './context/SocketContext';
@@ -36,6 +38,18 @@ const PageLoader = () => (
 function App() {
     return (
         <SocketProvider>
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+            />
             <Layout>
                 <Suspense fallback={<PageLoader />}>
                     <Routes>

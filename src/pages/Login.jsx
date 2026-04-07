@@ -1,18 +1,117 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Briefcase, Building, ScanFace, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { User, Briefcase, Building, ScanFace, Mail, Lock, ArrowRight, Loader2, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
 import { Helmet } from 'react-helmet-async';
 import Webcam from 'react-webcam';
 import * as faceapi from 'face-api.js';
 import api from '../services/api';
 import { toast } from 'react-toastify';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// Animation variants defined outside component to prevent recreation
+const CONTAINER_VARIANTS = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.05, delayChildren: 0.1 }
+    }
+};
+
+const ITEM_VARIANTS = {
+    hidden: { opacity: 0, y: 15 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+};
+
+const SLIDE_IN_LEFT = {
+    hidden: { opacity: 0, x: -60 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: 'easeOut' } }
+};
+
+const SLIDE_IN_RIGHT = {
+    hidden: { opacity: 0, x: 60 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: 'easeOut' } }
+};
+
+// Memoized Form Field Components
+const EmailField = memo(({ value, onChange, error }) => (
+    <motion.div variants={ITEM_VARIANTS}>
+        <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5 sm:mb-2">Email Address</label>
+        <motion.div className="relative group">
+            <Mail className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+            <input
+                type="email"
+                required
+                value={value}
+                onChange={onChange}
+                className="w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 border-2 border-slate-200 rounded-lg sm:rounded-xl focus:border-indigo-600 focus:ring-1 focus:ring-indigo-200 focus:outline-none transition-all bg-white/50 focus:bg-white text-sm placeholder:text-slate-400"
+                placeholder="you@example.com"
+            />
+        </motion.div>
+    </motion.div>
+));
+EmailField.displayName = 'EmailField';
+
+const PasswordField = memo(({ value, onChange, showPassword, setShowPassword }) => (
+    <motion.div variants={ITEM_VARIANTS}>
+        <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+            <label className="block text-xs sm:text-sm font-semibold text-slate-700">Password</label>
+            <Link to="/forgot-password" className="text-xs text-indigo-600 hover:text-indigo-700 font-medium hover:underline transition-colors">
+                Forgot?
+            </Link>
+        </div>
+        <motion.div className="relative group">
+            <Lock className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 sm:w-5 h-4 sm:h-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+            <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={value}
+                onChange={onChange}
+                className="w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3 border-2 border-slate-200 rounded-lg sm:rounded-xl focus:border-indigo-600 focus:ring-1 focus:ring-indigo-200 focus:outline-none transition-all bg-white/50 focus:bg-white text-sm placeholder:text-slate-400"
+                placeholder="••••••••"
+            />
+            <motion.button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                whileHover={{ scale: 1.1 }}
+            >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </motion.button>
+        </motion.div>
+    </motion.div>
+));
+PasswordField.displayName = 'PasswordField';
+
+const RoleButton = memo(({ role, isSelected, onClick }) => {
+    const Icon = role.icon;
+    return (
+        <motion.button
+            key={role.id}
+            onClick={onClick}
+            className={`relative p-2.5 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 hover:shadow-md ${
+                isSelected
+                    ? 'border-indigo-600 bg-indigo-50 shadow-md'
+                    : 'border-slate-200 hover:border-indigo-300 bg-white'
+            }`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            variants={ITEM_VARIANTS}
+        >
+            <Icon className={`w-5 sm:w-6 h-5 sm:h-6 mx-auto mb-1 sm:mb-2 transition-colors ${isSelected ? 'text-indigo-600' : 'text-slate-400'}`} />
+            <div className="text-xs font-bold text-slate-900">{role.label}</div>
+            <div className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 line-clamp-1">{role.desc}</div>
+        </motion.button>
+    );
+});
+RoleButton.displayName = 'RoleButton';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [selectedRole, setSelectedRole] = useState('student');
-    const [loginMethod, setLoginMethod] = useState('email'); // 'email' or 'face'
+    const [loginMethod, setLoginMethod] = useState('email');
+    const [showPassword, setShowPassword] = useState(false);
     const { user, login, googleLogin, faceLogin } = useAuth();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -20,7 +119,6 @@ const Login = () => {
     const webcamRef = useRef(null);
     const navigate = useNavigate();
 
-    // Redirect if already logged in
     useEffect(() => {
         if (user) {
             const dashboardLink = user.role === 'recruiter' ? '/recruiter/dashboard' : 
@@ -30,8 +128,12 @@ const Login = () => {
         }
     }, [user, navigate]);
 
+    // Load face-api models only when face login is selected (lazy loading for better UX)
     useEffect(() => {
+        if (loginMethod !== 'face') return;
+        
         const loadModels = async () => {
+            if (modelsLoaded) return; // Don't reload if already loaded
             try {
                 const MODEL_URL = 'https://justadudewhohacks.github.io/face-api.js/models';
                 await Promise.all([
@@ -46,16 +148,32 @@ const Login = () => {
             }
         };
         loadModels();
+    }, [loginMethod, modelsLoaded]);
+
+    // Debounced email handler to prevent excessive re-renders
+    const emailTimeoutRef = useRef(null);
+    const handleEmailChange = useCallback((e) => {
+        const value = e.target.value;
+        clearTimeout(emailTimeoutRef.current);
+        // Update immediately for UX, debounce internal operations
+        setFormData(prev => ({ ...prev, email: value }));
     }, []);
 
-    const handleEmailLogin = async (e) => {
+    // Debounced password handler
+    const passwordTimeoutRef = useRef(null);
+    const handlePasswordChange = useCallback((e) => {
+        const value = e.target.value;
+        clearTimeout(passwordTimeoutRef.current);
+        setFormData(prev => ({ ...prev, password: value }));
+    }, []);
+
+    const handleEmailLogin = useCallback(async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
         try {
             await login(formData.email, formData.password);
         } catch (err) {
-            console.error("Login Error Details:", err);
             const errorMessage = err.response?.data?.message
                 || err.response?.statusText
                 || err.message
@@ -64,22 +182,21 @@ const Login = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [formData.email, formData.password, login]);
 
-    const handleGoogleSuccess = async (credentialResponse) => {
+    const handleGoogleSuccess = useCallback(async (credentialResponse) => {
         try {
             setLoading(true);
             const res = await api.post('/users/google-auth', { token: credentialResponse.credential });
             googleLogin(res.data);
         } catch (err) {
-            console.error('Google Login Failed:', err);
             setError(err.response?.data?.message || 'Google Login Failed');
         } finally {
             setLoading(false);
         }
-    };
+    }, [googleLogin]);
 
-    const handleFaceLogin = async () => {
+    const handleFaceLogin = useCallback(async () => {
         if (!formData.email) {
             setError('Please enter your email first to identify you.');
             return;
@@ -88,236 +205,330 @@ const Login = () => {
         setError('');
 
         try {
-            console.log("Starting Face Login for:", formData.email);
-            const imageSrc = webcamRef.current.getScreenshot();
+            const imageSrc = webcamRef.current?.getScreenshot();
             if (!imageSrc) throw new Error("Webcam not ready");
 
             const img = await faceapi.fetchImage(imageSrc);
             const detection = await faceapi.detectSingleFace(img, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
 
             if (!detection) {
-                console.warn("No face detected during login");
                 throw new Error("No face detected. Please position yourself clearly.");
             }
 
-            console.log("Face detected. Sending descriptor...");
             const descriptor = Array.from(detection.descriptor);
-
             await faceLogin(formData.email, descriptor);
-            console.log("Face Login successful");
-
         } catch (err) {
-            console.error("Face Login Error:", err);
             setError(err.response?.data?.message || err.message || 'Face Login failed');
         } finally {
             setLoading(false);
         }
-    };
+    }, [formData.email, faceLogin]);
 
-    const roles = [
-        { id: 'student', label: 'Student', icon: User, desc: 'Student Portal' },
-        { id: 'recruiter', label: 'Recruiter', icon: Briefcase, desc: 'Recruiter Portal' },
-        { id: 'tpo', label: 'TPO', icon: Building, desc: 'Admin Portal' },
-    ];
+    const roles = useMemo(() => [
+        { id: 'student', label: 'Student', icon: User, desc: 'Job Board Access' },
+        { id: 'recruiter', label: 'Recruiter', icon: Briefcase, desc: 'Post Jobs' },
+        { id: 'tpo', label: 'Admin', icon: Building, desc: 'Management' },
+    ], []);
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-indigo-100 flex items-center justify-center px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-10 md:py-12 lg:py-16 relative overflow-hidden">
             <Helmet>
                 <title>Login | CPMS</title>
-                <meta name="description" content="Sign in to your Campus Placement Management System account to access your dashboard, jobs, and mock interviews." />
+                <meta name="description" content="Sign in to your Campus Placement Management System account." />
             </Helmet>
-            {/* Background Decoration */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-                <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-                <div className="absolute top-[20%] -right-[10%] w-[40%] h-[40%] bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-            </div>
 
-            <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900 tracking-tight">
-                    Welcome Back
-                </h2>
-                <p className="mt-2 text-center text-sm text-slate-600">
-                    Sign in to your account
-                </p>
-            </div>
+            {/* Animated Background Elements - Reduced animation intensity with will-change */}
+            <motion.div
+                className="absolute top-0 right-0 -mr-40 -mt-40 w-80 h-80 sm:w-96 sm:h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 12, repeat: Infinity }}
+                style={{ willChange: 'transform' }}
+            ></motion.div>
+            <motion.div
+                className="absolute bottom-0 left-0 -ml-40 -mb-40 w-80 h-80 sm:w-96 sm:h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"
+                animate={{ scale: [1.05, 1, 1.05] }}
+                transition={{ duration: 12, repeat: Infinity, delay: 1 }}
+                style={{ willChange: 'transform' }}
+            ></motion.div>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-                <div className="bg-white/80 backdrop-blur-xl py-8 px-4 shadow-2xl sm:rounded-2xl sm:px-10 border border-white/50">
+            <motion.div
+                className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 max-w-7xl w-full relative z-10"
+                variants={CONTAINER_VARIANTS}
+                initial="hidden"
+                animate="visible"
+            >
+                {/* Left Side - Visual */}
+                <motion.div 
+                    className="hidden md:flex flex-col justify-center"
+                    variants={SLIDE_IN_LEFT}
+                >
+                    <motion.div
+                        initial={{ opacity: 0, y: 40 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                    >
+                        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-4 sm:mb-6 lg:mb-6 leading-tight">
+                            Welcome Back to <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">CPMS</span>
+                        </h1>
+                        <p className="text-base sm:text-lg lg:text-xl text-slate-600 mb-6 sm:mb-8 lg:mb-8 leading-relaxed">
+                            Your gateway to career opportunities and placement success. Fast, secure, and intelligent campus recruitment platform.
+                        </p>
 
-                    {/* Login Method Tabs */}
-                    <div className="flex p-1 bg-gray-100 rounded-xl mb-6">
-                        <button
-                            onClick={() => setLoginMethod('email')}
-                            className={`flex-1 flex items-center justify-center py-2 text-sm font-medium rounded-lg transition-all ${loginMethod === 'email' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        <motion.div 
+                            className="space-y-4"
+                            variants={CONTAINER_VARIANTS}
+                            initial="hidden"
+                            animate="visible"
                         >
-                            <Mail size={16} className="mr-2" /> Email
-                        </button>
-                        <button
-                            onClick={() => setLoginMethod('face')}
-                            className={`flex-1 flex items-center justify-center py-2 text-sm font-medium rounded-lg transition-all ${loginMethod === 'face' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                        >
-                            <ScanFace size={16} className="mr-2" /> Face ID
-                        </button>
-                    </div>
+                            {[
+                                'Secure face recognition login',
+                                'One-click Google authentication',
+                                'Multi-role access control'
+                            ].map((feature, idx) => (
+                                <motion.div
+                                    key={idx}
+                                    className="flex items-center gap-3 text-slate-700"
+                                    variants={ITEM_VARIANTS}
+                                >
+                                    <CheckCircle className="w-5 h-5 text-indigo-600 flex-shrink-0" />
+                                    <span className="font-medium">{feature}</span>
+                                </motion.div>
+                            ))}
+                        </motion.div>
 
-                    {error && (
-                        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-r-md">
-                            <div className="flex">
-                                <div className="ml-3">
-                                    <p className="text-sm text-red-700">{error}</p>
+                        {/* Floating Elements */}
+                        <motion.div
+                            className="mt-12 grid grid-cols-3 gap-4"
+                        >
+                            {[
+                                { label: '10k+', desc: 'Students' },
+                                { label: '500+', desc: 'Companies' },
+                                { label: '95%', desc: 'Success' }
+                            ].map((stat, idx) => (
+                                <motion.div
+                                    key={idx}
+                                    className="bg-white/60 backdrop-blur-md rounded-2xl p-6 border border-white/40 text-center"
+                                    whileHover={{ y: -4 }}
+                                >
+                                    <div className="text-2xl font-bold text-indigo-600">{stat.label}</div>
+                                    <div className="text-sm text-slate-600 mt-1">{stat.desc}</div>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    </motion.div>
+                </motion.div>
+
+                {/* Right Side - Form */}
+                <motion.div 
+                    className="flex flex-col justify-center"
+                    variants={SLIDE_IN_RIGHT}
+                >
+                    <motion.div
+                        className="bg-white/85 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl border border-white/40 space-y-5 sm:space-y-6"
+                        variants={ITEM_VARIANTS}
+                    >
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-1 sm:mb-2">Sign In</h2>
+                            <p className="text-xs sm:text-sm text-slate-600">Access your placement journey</p>
+                        </motion.div>
+
+                        {/* Login Method Tabs */}
+                        <motion.div
+                            className="flex gap-2 bg-slate-100 p-1.5 rounded-lg sm:rounded-xl"
+                            variants={ITEM_VARIANTS}
+                        >
+                            <motion.button
+                                onClick={() => setLoginMethod('email')}
+                                className={`flex-1 flex items-center justify-center py-2 sm:py-2.5 px-3 sm:px-4 rounded-md sm:rounded-lg font-medium text-xs sm:text-sm transition-all duration-200 ${
+                                    loginMethod === 'email'
+                                        ? 'bg-white text-indigo-600 shadow-md'
+                                        : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                <Mail size={16} className="mr-1 sm:mr-2" />
+                                <span className="hidden xs:inline">Email</span>
+                            </motion.button>
+                            <motion.button
+                                onClick={() => setLoginMethod('face')}
+                                className={`flex-1 flex items-center justify-center py-2 sm:py-2.5 px-3 sm:px-4 rounded-md sm:rounded-lg font-medium text-xs sm:text-sm transition-all duration-200 ${
+                                    loginMethod === 'face'
+                                        ? 'bg-white text-indigo-600 shadow-md'
+                                        : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                <ScanFace size={16} className="mr-1 sm:mr-2" />
+                                <span className="hidden xs:inline">Face ID</span>
+                            </motion.button>
+                        </motion.div>
+
+                        {/* Error Alert */}
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: error ? 1 : 0, height: error ? 'auto' : 0 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            {error && (
+                                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                                    <p className="text-sm text-red-700 font-medium">{error}</p>
                                 </div>
-                            </div>
-                        </div>
-                    )}
+                            )}
+                        </motion.div>
 
-                    {loginMethod === 'email' ? (
-                        <form className="space-y-6" onSubmit={handleEmailLogin}>
-                            {/* Role Selection (Visual Only for now, backend detects role usually) */}
-                            <div className="grid grid-cols-3 gap-2 mb-4">
-                                {roles.map((type) => {
-                                    const Icon = type.icon;
-                                    const isSelected = selectedRole === type.id;
-                                    return (
-                                        <button
-                                            key={type.id}
-                                            type="button"
-                                            onClick={() => setSelectedRole(type.id)}
-                                            className={`flex flex-col items-center justify-center p-2 rounded-lg border transition-all ${isSelected
-                                                ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
-                                                : 'border-gray-200 hover:border-indigo-200 hover:bg-gray-50 text-gray-500'
-                                                }`}
-                                        >
-                                            <Icon size={20} className={isSelected ? 'text-indigo-600' : 'text-gray-400'} />
-                                            <span className="mt-1 text-[10px] uppercase font-bold tracking-wider">{type.label}</span>
-                                        </button>
-                                    );
-                                })}
-                            </div>
+                        {/* Role Selection */}
+                        <motion.div
+                            className="grid grid-cols-3 gap-2 sm:gap-3"
+                            variants={CONTAINER_VARIANTS}
+                            initial="hidden"
+                            animate="visible"
+                        >
+                            {roles.map((role) => (
+                                <RoleButton
+                                    key={role.id}
+                                    role={role}
+                                    isSelected={selectedRole === role.id}
+                                    onClick={() => setSelectedRole(role.id)}
+                                />
+                            ))}
+                        </motion.div>
 
-                            <div>
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email address</label>
-                                <div className="mt-1 relative rounded-md shadow-sm">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <Mail className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        {loginMethod === 'email' ? (
+                            <motion.form 
+                                className="space-y-4"
+                                onSubmit={handleEmailLogin}
+                                variants={CONTAINER_VARIANTS}
+                                initial="hidden"
+                                animate="visible"
+                            >
+                                <EmailField value={formData.email} onChange={handleEmailChange} />
+                                <PasswordField value={formData.password} onChange={handlePasswordChange} showPassword={showPassword} setShowPassword={setShowPassword} />
+
+                                {/* Submit Button */}
+                                <motion.button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full mt-4 sm:mt-6 py-2.5 sm:py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold text-sm sm:text-base rounded-lg sm:rounded-xl hover:shadow-xl transition-all disabled:opacity-75 disabled:cursor-not-allowed relative overflow-hidden group"
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    variants={ITEM_VARIANTS}
+                                >
+                                    <motion.div
+                                        className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        initial={{ x: -100 }}
+                                        whileHover={{ x: 100 }}
+                                        transition={{ duration: 0.5 }}
+                                    />
+                                    <div className="relative flex items-center justify-center">
+                                        {loading ? (
+                                            <Loader2 className="animate-spin" size={18} />
+                                        ) : (
+                                            <>
+                                                Sign In
+                                                <ArrowRight className="ml-2" size={16} />
+                                            </>
+                                        )}
                                     </div>
+                                </motion.button>
+                            </motion.form>
+                        ) : (
+                            <motion.div 
+                                className="space-y-4"
+                                variants={CONTAINER_VARIANTS}
+                                initial="hidden"
+                                animate="visible"
+                            >
+                                <motion.div
+                                    className="bg-slate-900 rounded-2xl overflow-hidden h-64 relative border-4 border-slate-200"
+                                    variants={ITEM_VARIANTS}
+                                >
+                                    {modelsLoaded ? (
+                                        <Webcam
+                                            audio={false}
+                                            ref={webcamRef}
+                                            screenshotFormat="image/jpeg"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="flex items-center justify-center h-full text-white">
+                                            <Loader2 className="animate-spin mr-2" />
+                                            Loading Face Recognition...
+                                        </div>
+                                    )}
+                                </motion.div>
+
+                                <motion.div variants={ITEM_VARIANTS}>
+                                    <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5 sm:mb-2">Email for Verification</label>
                                     <input
-                                        id="email"
-                                        name="email"
                                         type="email"
-                                        autoComplete="email"
-                                        required
-                                        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-lg py-3"
-                                        placeholder="you@example.com"
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                        className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-indigo-600 focus:outline-none transition-all"
+                                        placeholder="Enter your email"
                                     />
-                                </div>
-                            </div>
+                                </motion.div>
 
-                            <div>
-                                <div className="flex items-center justify-between">
-                                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-                                    <div className="text-sm">
-                                        <Link to="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                            Forgot password?
-                                        </Link>
+                                <motion.button
+                                    onClick={handleFaceLogin}
+                                    disabled={loading || !modelsLoaded}
+                                    className="w-full py-2.5 sm:py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold text-sm sm:text-base rounded-lg sm:rounded-xl hover:shadow-lg transition-all disabled:opacity-75"
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    variants={ITEM_VARIANTS}
+                                >
+                                    {loading ? (
+                                        <div className="flex items-center justify-center">
+                                            <Loader2 className="animate-spin mr-2" size={18} />
+                                            Verifying Face...
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center justify-center">
+                                            <ScanFace className="mr-2" size={18} />
+                                            Scan Face to Login
+                                        </div>
+                                    )}
+                                </motion.button>
+                            </motion.div>
+                        )}
+
+                        {/* Google Login */}
+                        {import.meta.env.VITE_GOOGLE_CLIENT_ID && import.meta.env.VITE_GOOGLE_CLIENT_ID !== 'YOUR_GOOGLE_CLIENT_ID_HERE' && (
+                            <motion.div variants={ITEM_VARIANTS} className="pt-4">
+                                <div className="relative mb-6">
+                                    <div className="absolute inset-0 flex items-center">
+                                        <div className="w-full border-t border-slate-300" />
+                                    </div>
+                                    <div className="relative flex justify-center text-sm">
+                                        <span className="px-3 bg-white text-slate-600 font-medium">Or continue with</span>
                                     </div>
                                 </div>
-                                <div className="mt-1 relative rounded-md shadow-sm">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                    </div>
-                                    <input
-                                        id="password"
-                                        name="password"
-                                        type="password"
-                                        required
-                                        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-lg py-3"
-                                        placeholder="••••••••"
-                                        value={formData.password}
-                                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+
+                                <div className="flex justify-center">
+                                    <GoogleLogin
+                                        onSuccess={handleGoogleSuccess}
+                                        onError={() => toast.error("Google Login Failed")}
                                     />
                                 </div>
-                            </div>
+                            </motion.div>
+                        )}
 
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all ${loading ? 'opacity-75 cursor-not-allowed' : ''}`}
-                            >
-                                {loading ? <Loader2 className="animate-spin" /> : 'Sign In'}
-                            </button>
-                        </form>
-                    ) : (
-                        <div className="space-y-6 text-center">
-                            <div className="bg-black rounded-lg overflow-hidden h-64 relative">
-                                {modelsLoaded ? (
-                                    <Webcam
-                                        audio={false}
-                                        ref={webcamRef}
-                                        screenshotFormat="image/jpeg"
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : (
-                                    <div className="flex items-center justify-center h-full text-white">Loading Models...</div>
-                                )}
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2 text-left">Confirm Email</label>
-                                <input
-                                    type="email"
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                    placeholder="Confirm your email"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                />
-                            </div>
-
-                            <button
-                                onClick={handleFaceLogin}
-                                disabled={loading || !modelsLoaded}
-                                className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-all ${loading ? 'opacity-75' : ''}`}
-                            >
-                                {loading ? <Loader2 className="animate-spin mr-2" /> : <ScanFace className="mr-2" />}
-                                {loading ? 'Verifying...' : 'Scan Face to Login'}
-                            </button>
-                        </div>
-                    )}
-
-                    {import.meta.env.VITE_GOOGLE_CLIENT_ID && import.meta.env.VITE_GOOGLE_CLIENT_ID !== 'YOUR_GOOGLE_CLIENT_ID_HERE' && (
-                        <div className="mt-8">
-                            <div className="relative">
-                                <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-gray-300" />
-                                </div>
-                                <div className="relative flex justify-center text-sm">
-                                    <span className="px-2 bg-white/80 text-gray-500">Or continue with</span>
-                                </div>
-                            </div>
-
-                            <div className="mt-6 flex justify-center">
-                                <GoogleLogin
-                                    onSuccess={handleGoogleSuccess}
-                                    onError={() => {
-                                        console.log('Login Failed');
-                                        toast.error("Google Login Failed");
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="mt-6 text-center">
-                        <p className="text-sm text-gray-600">
-                            Don't have an account?{' '}
-                            <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500 inline-flex items-center">
-                                Create free account <ArrowRight size={14} className="ml-1" />
-                            </Link>
-                        </p>
-                    </div>
-                </div>
-            </div>
+                        {/* Sign Up Link */}
+                        <motion.div 
+                            className="text-center pt-4 border-t border-slate-200"
+                            variants={ITEM_VARIANTS}
+                        >
+                            <p className="text-slate-700">
+                                Don't have an account?{' '}
+                                <Link to="/register" className="font-semibold text-indigo-600 hover:text-indigo-700 inline-flex items-center hover:gap-2 transition-all">
+                                    Create one now <ArrowRight size={16} />
+                                </Link>
+                            </p>
+                        </motion.div>
+                    </motion.div>
+                </motion.div>
+            </motion.div>
         </div>
     );
 };
