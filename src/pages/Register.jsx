@@ -45,21 +45,42 @@ const RegEmailField = memo(({ value, onChange }) => (
 ));
 RegEmailField.displayName = 'RegEmailField';
 
-const RegUniversityField = memo(({ value, onChange }) => (
+const RegUniversityField = memo(({ value, onChange, role }) => (
     <div>
-        <label className="block text-sm font-semibold text-slate-700 mb-2">University / College</label>
+        <label className="block text-sm font-semibold text-slate-700 mb-2">
+            {role === 'recruiter' ? 'Target University' : 'University / College'}
+        </label>
         <input
             type="text"
             required
             value={value}
             onChange={onChange}
             className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-lg focus:border-indigo-600 focus:outline-none transition-colors text-sm"
-            placeholder="e.g. Stanford University"
+            placeholder={role === 'recruiter' ? "University you're recruiting at" : "e.g. Stanford University"}
         />
-        <p className="mt-1 text-xs text-slate-500">Exact spelling helps link with campus partners</p>
+        <p className="mt-1 text-xs text-slate-500">
+            {role === 'recruiter' 
+                ? "Jobs will be visible to students of this campus" 
+                : "Exact spelling helps link with campus partners"}
+        </p>
     </div>
 ));
 RegUniversityField.displayName = 'RegUniversityField';
+
+const RegCompanyField = memo(({ value, onChange }) => (
+    <div>
+        <label className="block text-sm font-semibold text-slate-700 mb-2">Company Name</label>
+        <input
+            type="text"
+            required
+            value={value}
+            onChange={onChange}
+            className="w-full px-4 py-2.5 border-2 border-slate-200 rounded-lg focus:border-indigo-600 focus:outline-none transition-colors text-sm"
+            placeholder="e.g. Google, Accenture"
+        />
+    </div>
+));
+RegCompanyField.displayName = 'RegCompanyField';
 
 const RegPasswordField = memo(({ value, onChange }) => (
     <div>
@@ -77,7 +98,7 @@ const RegPasswordField = memo(({ value, onChange }) => (
 RegPasswordField.displayName = 'RegPasswordField';
 
 const Register = () => {
-    const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'student', university: '' });
+    const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'student', university: '', company: '' });
     const { user, register, googleLogin } = useAuth();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -135,12 +156,16 @@ const Register = () => {
         setFormData(prev => ({ ...prev, password: e.target.value }));
     }, []);
 
+    const handleCompanyChange = useCallback((e) => {
+        setFormData(prev => ({ ...prev, company: e.target.value }));
+    }, []);
+
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
         try {
-            await register(formData.name, formData.email, formData.password, formData.role, formData.university.trim());
+            await register(formData.name, formData.email, formData.password, formData.role, formData.university.trim(), formData.company.trim());
             toast.success("Account created! Set up Face Login now.");
             setStep(2);
         } catch (err) {
@@ -257,7 +282,10 @@ const Register = () => {
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <RegNameField value={formData.name} onChange={handleNameChange} />
                                 <RegEmailField value={formData.email} onChange={handleEmailChange} />
-                                <RegUniversityField value={formData.university} onChange={handleUniversityChange} />
+                                {formData.role === 'recruiter' && (
+                                    <RegCompanyField value={formData.company} onChange={handleCompanyChange} />
+                                )}
+                                <RegUniversityField value={formData.university} onChange={handleUniversityChange} role={formData.role} />
                                 <RegPasswordField value={formData.password} onChange={handlePasswordChange} />
 
                                 <button

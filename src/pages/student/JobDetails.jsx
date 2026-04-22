@@ -73,7 +73,7 @@ const JobDetails = () => {
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                         <div className="flex items-center gap-6">
                             <div className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white font-bold text-3xl shadow-inner">
-                                {job.company.charAt(0)}
+                                {job.company ? job.company.charAt(0) : 'J'}
                             </div>
                             <div>
                                 <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{job.title}</h1>

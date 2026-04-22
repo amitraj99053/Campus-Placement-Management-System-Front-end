@@ -166,6 +166,16 @@ const RecruiterDashboard = () => {
         }
     };
 
+    const handleToggleStatus = async (jobId) => {
+        try {
+            await api.put(`/jobs/${jobId}/toggle`);
+            toast.success('Job status updated');
+            fetchMyJobs();
+        } catch (error) {
+            toast.error('Failed to update job status');
+        }
+    };
+
     return (
         <div className="space-y-6">
             {!user?.isVerified && (
@@ -232,6 +242,7 @@ const RecruiterDashboard = () => {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicants</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deadline</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
@@ -256,7 +267,19 @@ const RecruiterDashboard = () => {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {new Date(job.deadline).toLocaleDateString()}
                                     </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${job.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                            {job.isActive ? 'Active' : 'Closed'}
+                                        </span>
+                                    </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button
+                                            onClick={() => handleToggleStatus(job._id)}
+                                            className={`mr-4 ${job.isActive ? 'text-green-600 hover:text-green-900' : 'text-gray-400 hover:text-gray-600'}`}
+                                            title={job.isActive ? 'Stop accepting applications' : 'Start accepting applications'}
+                                        >
+                                            {job.isActive ? <CheckCircle size={18} /> : <XCircle size={18} />}
+                                        </button>
                                         <button
                                             onClick={() => handleEditClick(job)}
                                             className="text-indigo-600 hover:text-indigo-900 mr-4"
@@ -405,10 +428,12 @@ const RecruiterDashboard = () => {
                         onChange={e => setNewJob({ ...newJob, deadline: e.target.value })} />
 
                     <div>
-                        <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Target University (Auto-filled)</label>
-                        <input type="text" className="w-full p-2 border rounded bg-gray-50" readOnly
-                            value={newJob.university} />
-                        <p className="text-[10px] text-gray-400 mt-1 italic">Jobs are automatically restricted to your registered university.</p>
+                        <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Target University</label>
+                        <input type="text" className="w-full p-2 border rounded focus:ring-2 focus:ring-indigo-500 outline-none" required
+                            placeholder="e.g. GL Bajaj Institute of Technology"
+                            value={newJob.university}
+                            onChange={e => setNewJob({ ...newJob, university: e.target.value })} />
+                        <p className="text-[10px] text-gray-400 mt-1 italic">Crucial: Only students of this specific university will be able to see and apply for this job.</p>
                     </div>
 
                     <button type="submit" className="w-full bg-indigo-600 text-white py-2 rounded">

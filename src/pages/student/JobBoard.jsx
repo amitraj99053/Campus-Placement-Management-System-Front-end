@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { Briefcase, MapPin, DollarSign, Calendar, Search, Filter, Building, Clock, CheckCircle } from 'lucide-react';
+import { Briefcase, MapPin, DollarSign, Calendar, Search, Filter, Building, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Helmet } from 'react-helmet-async';
@@ -146,7 +146,7 @@ const JobBoard = () => {
                             <div className="flex justify-between items-start mb-6 relative z-10">
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-xl shadow-sm">
-                                        {job.company.charAt(0)}
+                                        {job.company ? job.company.charAt(0) : 'J'}
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-lg text-slate-900 line-clamp-1" title={job.title}>{job.title}</h3>

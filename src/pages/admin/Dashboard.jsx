@@ -238,12 +238,20 @@ const AdminDashboard = () => {
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="font-bold text-slate-900">{user.name}</div>
                                                     <div className="text-xs text-slate-500">{user.email}</div>
+                                                    {user.role === 'recruiter' && user.company && (
+                                                        <div className="text-xs font-bold text-indigo-600 mt-1 uppercase tracking-tighter">
+                                                            🏢 {user.company}
+                                                        </div>
+                                                    )}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap capitalize">
                                                     <span className={`px-2 py-1 rounded-md text-xs font-bold ${user.role === 'recruiter' ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700'
                                                         }`}>
                                                         {user.role}
                                                     </span>
+                                                    <div className="text-[10px] text-slate-400 mt-1">
+                                                        📍 {user.university || 'N/A'}
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right">
                                                     <button
