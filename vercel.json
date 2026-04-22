@@ -2,11 +2,11 @@
     "rewrites": [
         {
             "source": "/api/(.*)",
-            "destination": "https://your-backend-app.onrender.com/api/$1"
+            "destination": "https://campus-placement-management-system-back.onrender.com/api/$1"
         },
         {
             "source": "/uploads/(.*)",
-            "destination": "https://your-backend-app.onrender.com/uploads/$1"
+            "destination": "https://campus-placement-management-system-back.onrender.com/uploads/$1"
         },
         {
             "source": "/(.*)",
