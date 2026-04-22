@@ -15,11 +15,8 @@ export const AuthProvider = ({ children }) => {
         try {
             // Prefer server-validated session using HTTP-only cookie
             const { data } = await api.get('/users/profile');
-            const storedUser = localStorage.getItem('userInfo');
-            const token = storedUser ? JSON.parse(storedUser).token : null;
-            const userData = { ...data, token };
-            setUser(userData);
-            localStorage.setItem('userInfo', JSON.stringify(userData));
+            setUser(data);
+            localStorage.setItem('userInfo', JSON.stringify(data));
         } catch (error) {
             // Fallback to locally stored user if available
             const storedUser = localStorage.getItem('userInfo');
