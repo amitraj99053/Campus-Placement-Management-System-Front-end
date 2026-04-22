@@ -8,6 +8,23 @@ const api = axios.create({
     },
 });
 
+// Request interceptor to add token to headers
+api.interceptors.request.use(
+    (config) => {
+        const storedUser = localStorage.getItem('userInfo');
+        if (storedUser) {
+            const { token } = JSON.parse(storedUser);
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
 // Response interceptor to handle 401 (Unauthorized)
 api.interceptors.response.use(
     (response) => response,
